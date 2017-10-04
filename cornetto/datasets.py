@@ -6,6 +6,10 @@ from data_handlers import UnigramTrainingData
 from data_handlers import RNNTrainingData
 from data_handlers import WordToVecModel
 
+ROOT_DIR = './data/training_data/'
+UNIGRAM_DIR = ROOT_DIR + '-unigram_training_data_DEPTH'
+RNN_DIR = ROOT_DIR + "-rnn_training_data_DEPTH"
+
 def load_arxiv(depth = 5):
     """
     Loads processed arxiv of specified depth.
@@ -45,9 +49,6 @@ def training_data(kind, depth = 5):
     kind: string, e.g. 'unigram'
     depth: int, either 2, 3 or 5(default)
     """
-    ROOT_DIR = './data/training_data/'
-    UNIGRAM_DIR = ROOT_DIR + '-unigram_training_data_DEPTH'
-    RNN_DIR = ROOT_DIR + "-rnn_training_data_DEPTH"
 
     if kind == 'unigram':
         return UnigramTrainingData.load(UNIGRAM_DIR + str(depth))

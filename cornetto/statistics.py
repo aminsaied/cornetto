@@ -1,43 +1,8 @@
 import numpy as np
-import pandas as pd
-from collections import Counter, namedtuple
-from itertools import combinations
-from operator import itemgetter
-from containers import MSC, Vocab
+
+from containers import Vocab
 from text_processor import WordSelector
 
-class MSCDist(object):
-    def __init__(self, series, msc_bank):
-        """
-        Creates an object with fields .dist and .joint_dist of probability distributions
-        of msc codes present in the provided dataframe
-        -- series: pd.Series, of the form series = df.MSCs
-        -- msc_bank: data_handlers.MSC
-        """
-        self.dist, self.joint_dist = self._compute_distributions(series, msc_bank)
-
-    @staticmethod
-    def _compute_distributions(series, msc_bank):
-        PAIR = 2
-
-        msc_counts = np.ones((len(msc_bank),1)) # ones add noise
-        msc_joint_counts = np.ones((len(msc_bank), len(msc_bank))) # ones add noise
-        for row in series:
-            code_of = lambda x: x[:msc_bank.code_length]
-            codes = list(set([code_of(x) for x in row.split() if code_of(x) in msc_bank]))
-            for code in codes:
-                index = msc_bank[code].id
-                msc_counts[index] += 1
-            for (code1, code2) in combinations(codes, r=PAIR):
-                index1 = msc_bank[code1].id
-                index2 = msc_bank[code2].id
-                msc_joint_counts[index1][index2] += 1
-                msc_joint_counts[index2][index1] += 1
-
-        msc_dist = msc_counts / sum(msc_counts)
-        msc_joint_dist = msc_joint_counts / np.sum(msc_joint_counts, axis=1).reshape(len(msc_bank),1)
-
-        return msc_dist, msc_joint_dist
     
 class IG(object):
 

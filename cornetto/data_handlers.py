@@ -7,7 +7,7 @@ from text_processor import WordSelector
 
 class PairedData(object):
     """
-    Object to handle labeled data of the form (x,y).
+    Object to handle labeled data of the form (X,Y).
     """
     def __init__(self, X, Y):
         """
@@ -44,7 +44,7 @@ class TrainingData(object):
         """
         numpy_slice = np.s_[:, slice]
         training = self.training[numpy_slice]
-        return TrainingData(training, self.test, self.validation)
+        return self.__class__(training, self.test, self.validation)
 
     @classmethod
     def build(cls):
@@ -55,14 +55,14 @@ class TrainingData(object):
         data = [self.training, self.test, self.validation]
         pd.to_pickle(data, filename+EXTENSION)
 
-    @staticmethod
-    def load(filename):
+    @classmethod
+    def load(cls, filename):
         EXTENSION = '.pkl'
         try:
             data = pd.read_pickle(filename+EXTENSION)
         except FileNotFoundError:
-            print("No file by that name. Remember, we add the .pkl extension for you!")
-        return TrainingData(*data)
+            print("No file %s. Remember, we add the .pkl extension for you!"%filename)
+        return cls(*data)
 
 class UnigramTrainingData(TrainingData):
     """Creates and handles unigram model training data."""
@@ -202,7 +202,7 @@ class Word2VecTrainingData(T2VTrainingData):
         if words and (len(words) > 1):
             pairs = combinations(words,r=PAIR)
             X,Y = list(zip(*pairs))
-        return np.array(X).reshape(1, len(X)), np.array(Y).reshape(1,len(Y))
+        return np.array(X).reshape(1, -1), np.array(Y).reshape(1,-1)
 
 class WordToVecModel(object):
     """

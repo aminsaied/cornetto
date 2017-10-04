@@ -183,7 +183,7 @@ if __name__ == '__main__':
                 see_evaluation(epoch, training_acc, test_acc)
 
         DIR = "/tmp/"
-        filename = "my_model_final.ckpt"
-        print ("Saving model to", DIR+filename)
+        FILENAME = "my_model_final.ckpt"
+        print ("Saving model to", DIR+FILENAME)
 
-        save_path = saver.save(sess, DIR+filename)
+        save_path = saver.save(sess, DIR+FILENAME)

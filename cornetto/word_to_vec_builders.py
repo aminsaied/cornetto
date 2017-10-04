@@ -40,22 +40,6 @@ class GensimWordToVecBuilder(WordToVecDict):
     def _convert(self, word):
         return self.model[word]
 
-class NaiveWordToVec(WordToVecDict):
-    def __init__(self, vocab):
-        self.vocab = vocab
-
-    def _convert(self, text):
-        """
-        Accepts a text, returns the corresponding one-hot vector.
-        """
-        word_selector = WordSelector(self.vocab)
-        words = word_selector.select_words(text)
-
-        vec = np.zeros((len(self.vocab),1))
-        for word in words:
-            vec[self.vocab[word].id] += 1.
-        return vec
-
 class SVDWordToVec(WordToVecDict):
     """
     Uses SVD to produce word embeddings.

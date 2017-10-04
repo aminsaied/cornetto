@@ -3,11 +3,13 @@ import pandas as pd
 from functools import partial
 import matplotlib.pyplot as plt
 
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, fbeta_score
 
 import datasets
 from containers import MSC
 from data_handlers import RNNTrainingData
+
+DEFAULT_THRESHOLD = 0.2
 
 class ThresholdPrediction(object):
     """
@@ -17,40 +19,71 @@ class ThresholdPrediction(object):
     average F1-score.
     """
 
-    def __init__(self, msc_bank):
+    def __init__(self, dim=0, threshold=None, labels=None):
         """
         Note that before the model is fit to data, the initial threshold
         vector is full of ones. In this way, before the ThresholdPrediction
         object is fit to data, the 'predict' method simply selects the
         single class with the higghest probability.
-        -- msc_bank: MSC, see 'containers'
+        -- K: either the number of classes (=dim of the vector), 
+        or a 'collection' of classes, i.e. anything we can take 'len' of. 
         """
-        self.msc_bank = msc_bank
-        self.threshold = np.ones(len(msc_bank))
+        assert isinstance(dim, int)
+        self.dim = dim
+        self.threshold = threshold
+        self.labels = labels
 
-    def fit(self, p_hat, y, verbose=False):
+    @property
+    def threshold(self):
+        return self._threshold
+    
+    @threshold.setter
+    def threshold(self, value):
+        if value is None:
+            value = np.full(self.dim, DEFAULT_THRESHOLD)
+        value_as_arr = np.array(value).reshape(-1,1)
+        assert value_as_arr.shape[0] == self.dim
+        self._threshold = value_as_arr
+        
+    @property
+    def labels(self):
+        return self._labels
+    
+    @labels.setter
+    def labels(self, value):
+        if value is None:
+            value = np.array(range(self.dim), dtype=str)
+        value_as_arr = np.array(value).reshape(-1,1)
+        assert value_as_arr.shape[0] == self.dim
+        self._labels = value_as_arr
+        
+    def fit(self, p_hat, y, refinement=50, beta=1.0, verbose=False):
         """
-        Given an array of p_hat and a matrix of labels y, fits
-        the threshold parameter vector to maximise the F1 score.
-        -- p_hat: 2D array, cols = probability vectors
-        -- y: 2D array, cols = vector of labels
+        Given a 2D array p_hat, each column a probability vector, 
+        and a matrix of labels y, fits the threshold parameter 
+        vector to maximise the F-beta score.
+        Input:
+          -- p_hat: 2D array, cols = probability vectors
+          -- y: 2D array, cols = vectors of labels (vectors of 0's and 1's)
+          -- refinement : int, the number of threshold values to consider
+          -- beta : float, weight of precision in harmonic mean
+          -- verbose : bool, if True prints the average f-beta score.
         """
-        T = np.linspace(0,1)
-        K = len(self.msc_bank)
-        m = len(T)
+        test_thresholds = np.linspace(0,1, num=refinement)
 
-        A = np.zeros((K, m))
-        for i in range(m):
-            y_hat_gaps = (p_hat > T[i]).astype(int)
-            y_hat = self._fill_gaps(p_hat, y_hat_gaps)
-            A[:,i] = [f1_score(y[i], y_hat[i]) for i in range(K)]
+        A = np.zeros((self.dim, refinement))
+        for i, threshold in enumerate(test_thresholds):
+            threshold_vec = np.full(self.dim, threshold)
+            y_hat = self._predict_with_threshold(p_hat, threshold_vec)
+            A[:,i] = fbeta_score(y.T,y_hat.T,beta=beta,average=None)
 
-        self.threshold = T[np.argmax(A, axis=1)]
+        self.threshold = test_thresholds[np.argmax(A, axis=1)]
 
         if verbose:
-            f1_scores = A[range(K),np.argmax(A, axis=1)]
-            f1_mean = np.mean(f1_scores)
-            print("F1 score: {:.2}".format(f1_mean))
+            f_scores = A[range(self.dim),np.argmax(A, axis=1)]
+            f_mean = np.mean(f_scores)
+            message = "Average F-beta score with beta={:.2} is: {:.2}"
+            print(message.format(beta, f_mean))
 
     def predict(self, p_hat):
         """
@@ -59,10 +92,48 @@ class ThresholdPrediction(object):
         p_hat[i] > self.threshold[i]
         -- p_hat: 2D array, cols = probability vectors
         """
-        y_hat = (p_hat > self.threshold.reshape(-1,1)).astype(int)
+        y_hat = self._predict_with_threshold(p_hat, self.threshold)
+        return y_hat
+    
+    def save(self, filename):
+        """
+        Input:
+          -- filename: str, filename with a path, *no extension*, 
+          i.e. 'my_file' isnstead of 'my_file.txt'
+        """
+        EXTENSION = '.csv'
+        data = np.hstack( (self.threshold, self.labels) )
+        pred_as_df = pd.DataFrame(data)
+        pred_as_df.to_csv(filename+EXTENSION, mode = 'w', index=False)
+        
+    @classmethod
+    def load(cls, file, encoding = 'ISO-8859-1'):
+        """
+        Input:
+           -- file : either a filename or a file object.
+           -- dtype : dictionary of types for each feature attribute
+        """
+        DTYPE = {0:'float', 1:'str'}
+        # if file is just a filename
+        if isinstance(file, str):
+            EXTENSION = '.csv'
+            file += EXTENSION
+        try:
+            df = pd.read_csv(file, dtype=DTYPE, encoding=encoding)
+        except (ValueError, EOFError):
+            print("Can't read the file.")
+            empty = cls()
+            return empty
+        dim = len(df.index)
+        return cls(dim, df['0'], df['1'])
+    
+    def _predict_with_threshold(self, p_hat, T):
+        p_hat = p_hat.reshape(self.dim, -1)
+        T = T.reshape(self.dim, -1)
+        y_hat = (p_hat > T).astype(int)
         y_hat_no_gaps = self._fill_gaps(p_hat, y_hat)
         return y_hat_no_gaps
-
+        
     @staticmethod
     def _fill_gaps(p_hat, y_hat):
         """
@@ -148,81 +219,3 @@ class ThresholdPredictionSimple(object):
 
         y_hat[gap_indices, code_indices] += 1
         return y_hat
-
-class Prediction(object):
-    """
-    Matches a probability vector with the given labels.
-    """
-    def __init__(self, p_hat, output_dist=[], output_joint_dist=[]):
-        """
-         -- p_hat: 2D numpy array, cols = probability vectors
-         -- output_dist: 1D numpy array, probability distribution of output
-         -- output_joint_dist: 2D array, probability of one output given another
-        """
-        self.p_hat = p_hat
-        if len(output_dist)>0:
-            self.p_hat = self._reweight_with_dist(self.p_hat, output_dist)
-        if len(output_joint_dist)>0:
-            self.p_hat = self._reweight_with_joint_dist(self.p_hat, output_joint_dist)
-
-    @staticmethod
-    def _reweight_with_dist(p_hat, dist):
-        """
-        Reweights the probability distribution according to a prior distribution.
-        -- p_hat: 2D numpy array, cols = probability vectors
-        -- dist: 1D numpy array, probability distribution of output
-        """
-        return np.multiply(p_hat, dist)
-
-    @staticmethod
-    def _reweight_with_joint_dist(p_hat, output_joint_dist):
-        """
-        Reweights the probability distribution according to a prior distribution.
-        -- p_hat: 2D numpy array, cols = probability vectors
-        -- output_joint_dist: 2D array, probability of one output given another
-        """
-        np.fill_diagonal(output_joint_dist, 1)
-        max_indices = np.apply_along_axis(np.argmax, 0, p_hat)
-        reweight_matrix = output_joint_dist[:,max_indices]
-        return np.multiply(reweight_matrix, p_hat)
-
-    def most_likely(self, k=1):
-        """Returns matrix of 0 and 1, with 1 at the most likely"""
-        indices = self._most_likely_indices(k)
-        selected = self._create_mask(indices)
-        return selected
-
-    def _most_likely_indices(self, k=1):
-        """ Returns UNSORTED array of indices of the k most likely labels. """
-        top_k_ind_by_col = partial(Prediction._top_k_ind_in_col, k=k)
-        indices_by_col = np.apply_along_axis(top_k_ind_by_col, 0, self.p_hat)
-        indices = Prediction._reformat(indices_by_col)
-        return indices
-
-    def _create_mask(self, indices):
-        shape = self.p_hat.shape
-        mask = np.zeros(shape)
-        mask[indices] = 1.0
-        return mask
-
-    @staticmethod
-    def _top_k_ind_in_col(column, k=1):
-        indices = np.argpartition(column, -k)[-k:]
-        return indices
-
-    @staticmethod
-    def _reformat(indices_by_col):
-        """
-        Makes a list of column-wise indices into a matrix,
-        0-th row are x-coordinates, 1-st are y-coordinates
-        -- indices_by_col : k x M matrix, each col
-                consists of indices in this column when viewed as list.
-        """
-        size = len(indices_by_col)
-        xcoord, ycoord = [], []
-        for (x,y), value in np.ndenumerate(indices_by_col):
-            xcoord.append( value )
-            ycoord.append( y )
-        stacked = np.stack((xcoord, ycoord))
-        # convert to list for numpy indexing specifics reason
-        return list(stacked)
