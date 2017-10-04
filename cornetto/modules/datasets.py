@@ -1,12 +1,15 @@
 import pandas as pd
 
-from prepare_data import MSCCleaner
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+
+from arxiv_processor import MSCCleaner
 from containers import MSC
 from data_handlers import UnigramTrainingData
 from data_handlers import RNNTrainingData
 from data_handlers import WordToVecModel
 
-ROOT_DIR = './data/training_data/'
+ROOT_DIR = '../data/training_data/'
 UNIGRAM_DIR = ROOT_DIR + '-unigram_training_data_DEPTH'
 RNN_DIR = ROOT_DIR + "-rnn_training_data_DEPTH"
 
@@ -16,7 +19,7 @@ def load_arxiv(depth = 5):
     See 'containers' for details of processing.
     -- depth: int (default = 5)
     """
-    DIR = './data/arxiv/'
+    DIR = '../data/arxiv/'
     ARXIV = "-arxiv_processed"
     EXT = ".pkl"
 

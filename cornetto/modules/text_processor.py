@@ -8,6 +8,10 @@ import re
 #import methods from libraries
 from nltk.tag import pos_tag
 from collections import Counter, namedtuple, UserDict
+
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+
 from arxiv_processor import PrepareInput
 
 class TextCleaner(object):

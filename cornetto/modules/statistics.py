@@ -1,5 +1,8 @@
 import numpy as np
 
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+
 from containers import Vocab
 from text_processor import WordSelector
 

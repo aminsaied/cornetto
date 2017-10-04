@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 from data_handlers import UnigramTrainingData
 
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+
 from containers import Vocab, MSC
 from prepare_data import MSCCleaner
 

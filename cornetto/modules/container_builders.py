@@ -2,6 +2,9 @@
 import numpy as np
 import pandas as pd
 
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+
 #import methods from libraries
 from collections import Counter, namedtuple
 from text_processor import WordSelector, TextCleaner, POSTagger

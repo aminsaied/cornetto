@@ -10,8 +10,11 @@ from tensorflow.contrib.framework import arg_scope
 
 softmax = tf.nn.sparse_softmax_cross_entropy_with_logits # what is the pythonic way to do this?
 
-import datasets
-from data_handlers import RNNTrainingData
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+import modules.datasets
+from modules.data_handlers import RNNTrainingData
 
 def default_hyper_params():
     """Assigns default hyperparameters."""

@@ -2,7 +2,61 @@
 import numpy as np
 import pandas as pd
 
+from sklearn.base import BaseEstimator, TransformerMixin
+
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+
 from containers import MSC
+
+class MSCCleaner(BaseEstimator, TransformerMixin):
+    """
+    Given a pandas series of MSC strings, returns a list of (unique) MSC codes,
+    of specified depths.
+    NB. depth = 2, 3, or 5 (default)
+    """
+
+    DEPTH = 5
+    def __init__(self, depth=DEPTH):
+        self.depth         = depth
+        self.msc_bank     = MSC.load(depth)
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X, y=None):
+        X_as_list = self._to_list(X)
+        X_specified = self._specify(X_as_list, self.depth)
+        X_valid = self._are_valid(X_specified, self.msc_bank)
+
+        return X_valid
+
+    @staticmethod
+    def _to_list(X):
+        """
+        Converts string of MSCs to list of MSCs
+        """
+        to_list = lambda codes_string: codes_string.split()
+        return X.apply(to_list)
+
+    @staticmethod
+    def _specify(X, depth):
+        """
+        Selects MSC codes of desired depth 2, 3 or 5 digit. Removes
+        duplicate codes that this may create.
+        """
+        specify = lambda codes: [code[:depth] for code in codes]
+        MSCs_contracted = X.apply(specify)
+        remove_duplicates = lambda codes: list(set(codes))
+        return MSCs_contracted.apply(remove_duplicates)
+
+    @staticmethod
+    def _are_valid(X, msc_bank):
+        """
+        Checks MSC codes are valid.
+        """
+        validate = lambda codes: [code for code in codes if code in msc_bank]
+        return X.apply(validate)
 
 class PrepareInput(object):
     """

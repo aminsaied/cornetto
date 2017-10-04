@@ -12,6 +12,9 @@ from copy import deepcopy
 
 thismodule = sys.modules[__name__]
 
+MSC_DATA_PATH = '../data/msc_classes/'
+MSC_FILENAME_TEMPLATE = MSC_DATA_PATH+'%s_digit'
+
 class _SortedContainer(object):
     """
     Abstract container class to be used as a dictionary. 
@@ -457,8 +460,7 @@ class MSC(_SortedContainer):
 
     @staticmethod
     def _get_filename(code_length):
-        FILENAME_TEMPLATE = 'msc_classes/%s_digit'
-        return FILENAME_TEMPLATE%code_length
+        return MSC_FILENAME_TEMPLATE%code_length
 
 class TFIDFFeatures(namedtuple('TFIDFFeatures', ['key', 'id','tag','idf','tfidf'])):
     """

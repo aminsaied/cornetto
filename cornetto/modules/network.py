@@ -5,6 +5,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import tqdm
 
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+
 from data_handlers import T2VTrainingData, PairedData
 from prediction import Prediction
 from abc import ABC, abstractmethod

@@ -2,21 +2,23 @@ import numpy as np
 import pandas as pd
 import re
 
-from container_builders import VocabBuilder as VB
-from container_builders import PhraseBuilder as PB
-from container_builders import TFIDFBuilder as TFB
-from arxiv_processor import PrepareInput
-from containers import VocabParams, MSC
-from text_processor import TextCleaner, WordSelector
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+from modules.container_builders import VocabBuilder as VB
+from modules.container_builders import PhraseBuilder as PB
+from modules.container_builders import TFIDFBuilder as TFB
+from modules.arxiv_processor import PrepareInput, MSCCleaner
+from modules.containers import VocabParams, MSC
+from modules.text_processor import TextCleaner, WordSelector
 
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import MultiLabelBinarizer
 
 
-# DATA_PATH = '-arxiv_half_with_msc.pkl'
-DATA_PATH = 'arxiv_60000.pkl'
-# DATA_PATH = '-arxiv_testing.pkl'
+ARXIV_DATA_PATH = '../data/arxiv/'
+ARXIV_FILE = '-arxiv_60000.pkl'
 INPUT_ = 'Abstract'
 OUTPUT_ = 'MSCs'
 VOCAB_DIR = '-vocab'
@@ -26,7 +28,7 @@ DEPTH = 5
 
 def read_data():
     print("Reading data...")
-    df = pd.read_pickle(DATA_PATH)[[INPUT_, OUTPUT_]]
+    df = pd.read_pickle(ARXIV_DATA_PATH+ARXIV_FILE)[[INPUT_, OUTPUT_]]
     return df
 
 class DataFrameSelector(BaseEstimator, TransformerMixin):
@@ -37,55 +39,6 @@ class DataFrameSelector(BaseEstimator, TransformerMixin):
         return self
     def transform(self, X, y=None):
         return X[self.column]
-
-class MSCCleaner(BaseEstimator, TransformerMixin):
-    """
-    Given a pandas series of MSC strings, returns a list of (unique) MSC codes,
-    of specified depths.
-    NB. depth = 2, 3, or 5 (default)
-    """
-
-    DEPTH = 5
-    def __init__(self, depth=DEPTH):
-        self.depth         = depth
-        self.msc_bank     = MSC.load(depth)
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X, y=None):
-        X_as_list = self._to_list(X)
-        X_specified = self._specify(X_as_list, self.depth)
-        X_valid = self._are_valid(X_specified, self.msc_bank)
-
-        return X_valid
-
-    @staticmethod
-    def _to_list(X):
-        """
-        Converts string of MSCs to list of MSCs
-        """
-        to_list = lambda codes_string: codes_string.split()
-        return X.apply(to_list)
-
-    @staticmethod
-    def _specify(X, depth):
-        """
-        Selects MSC codes of desired depth 2, 3 or 5 digit. Removes
-        duplicate codes that this may create.
-        """
-        specify = lambda codes: [code[:depth] for code in codes]
-        MSCs_contracted = X.apply(specify)
-        remove_duplicates = lambda codes: list(set(codes))
-        return MSCs_contracted.apply(remove_duplicates)
-
-    @staticmethod
-    def _are_valid(X, msc_bank):
-        """
-        Checks MSC codes are valid.
-        """
-        validate = lambda codes: [code for code in codes if code in msc_bank]
-        return X.apply(validate)
 
 class AbstractCleaner(BaseEstimator, TransformerMixin):
     """

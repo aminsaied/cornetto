@@ -10,10 +10,13 @@ from tensorflow.contrib.framework import arg_scope
 
 softmax = tf.nn.sparse_softmax_cross_entropy_with_logits # what is the pythonic way to do this?
 
-import datasets
-from containers import MSC
-from data_handlers import RNNTrainingData
-from prediction import Prediction
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+import modules.datasets
+from modules.containers import MSC
+from modules.data_handlers import RNNTrainingData
+from modules.prediction import Prediction
 
 # set demonstration parameters
 n_epochs      = 10

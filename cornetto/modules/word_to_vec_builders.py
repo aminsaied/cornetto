@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 from gensim.models import word2vec
 
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+
 from text_processor import WordSelector
 from data_handlers import WordToVecModel
 

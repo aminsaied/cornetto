@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 
 from sklearn.metrics import f1_score, fbeta_score
 
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+
 import datasets
 from containers import MSC
 from data_handlers import RNNTrainingData
