@@ -1,0 +1,62 @@
+0,1,2
+03,0,Mathematical logic and foundations
+05,1,Combinatorics
+06,2,"Order, lattices, ordered algebraic structures"
+08,3,General algebraic systems
+11,4,Number theory
+12,5,Field theory and polynomials
+13,6,Commutative algebra
+14,7,Algebraic geometry
+15,8,Linear and multilinear algebra; matrix theory
+16,9,Associative rings and algebras
+17,10,Nonassociative rings and algebras
+18,11,"Category theory, homological algebra"
+19,12,$K$-theory
+20,13,Group theory and generalizations
+22,14,"Topological groups, Lie groups"
+26,15,Real functions
+28,16,Measure and integration
+30,17,Functions of a complex variable
+31,18,Potential theory
+32,19,Several complex variables and analytic spaces
+33,20,Special functions
+34,21,Ordinary differential equations
+35,22,Partial differential equations
+37,23,Dynamical systems and ergodic theory
+39,24,Difference and functional equations
+40,25,"Sequences, series, summability"
+41,26,Approximation and expansions
+42,27,Harmonic analysis on Euclidean spaces
+43,28,Abstract harmonic analysis
+44,29,"Integral transforms, operational calculus"
+45,30,Integral equations
+46,31,Functional analysis
+47,32,Operator theory
+49,33,Calculus of variations and optimal control; optimization
+51,34,Geometry
+52,35,Convex and discrete geometry
+53,36,Differential geometry
+54,37,General topology
+55,38,Algebraic topology
+57,39,Manifolds and cell complexes
+58,40,"Global analysis, analysis on manifolds"
+60,41,Probability theory and stochastic processes
+62,42,Statistics
+65,43,Numerical analysis
+68,44,Computer science
+70,45,Mechanics of particles and systems
+74,46,Mechanics of deformable solids
+76,47,Fluid mechanics
+78,48,"Optics, electromagnetic theory"
+80,49,"Classical thermodynamics, heat transfer"
+81,50,Quantum Theory
+82,51,"Statistical mechanics, structure of matter"
+83,52,Relativity and gravitational theory
+85,53,Astronomy and astrophysics
+86,54,Geophysics
+90,55,"Operations research, mathematical programming"
+91,56,"Game theory, economics, social and behavioral sciences"
+92,57,Biology and other natural sciences
+93,58,Systems theory; control
+94,59,"Information and communication, circuits"
+97,60,Mathematics education

@@ -1,6 +1,0 @@
-*.ipynb
-*.pkl
-*.csv
-*.pyc
-tf_logs/
-tensorflow_models/

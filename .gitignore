@@ -1,5 +1,8 @@
 *.pyc
-*.pkl
 *.ipynb
-*.csv
-*.json
+
+cornetto/data/*
+!cornetto/data/msc_classes/
+
+cornetto/tf_logs/
+cornetto/tensorflow_models/

@@ -1,0 +1,522 @@
+0,1,2
+03A,0,Philosophical aspects of logic and foundations
+03B,1,General logic
+03C,2,Model theory
+03D,3,Computability and recursion theory
+03E,4,Set theory
+03F,5,Proof theory and constructive mathematics
+03G,6,Algebraic logic
+03H,7,Nonstandard models
+05A,8,Enumerative combinatorics
+05B,9,Designs and configurations
+05C,10,Graph theory
+05D,11,Extremal combinatorics
+05E,12,Algebraic combinatorics
+06A,13,Ordered sets
+06B,14,Lattices
+06C,15,"Modular lattices, complemented lattices"
+06D,16,Distributive lattices
+06E,17,Boolean algebras
+06F,18,Ordered structures
+08A,19,Algebraic structures
+08B,20,Varieties
+08C,21,Other classes of algebras
+11A,22,Elementary number theory
+11B,23,Sequences and sets
+11C,24,Polynomials and matrices
+11D,25,Diophantine equations
+11E,26,Forms and linear algebraic groups
+11F,27,Discontinuous groups and automorphic forms
+11G,28,Arithmetic algebraic geometry
+11H,29,Geometry of numbers
+11J,30,"Diophantine approximation, transcendental number theory"
+11K,31,Probabilistic theory: distribution modulo 1; metric theory of algorithms
+11L,32,Exponential sums and character sums
+11M,33,Zeta and $L$-functions: analytic theory
+11N,34,Multiplicative number theory
+11P,35,Additive number theory; partitions
+11R,36,Algebraic number theory: global fields
+11S,37,Algebraic number theory: local and $p$-adic fields
+11T,38,Finite fields and commutative rings
+11U,39,Connections with logic
+11Y,40,Computational number theory
+11Z,41,Miscellaneous applications of number theory
+12D,42,Real and complex fields
+12E,43,General field theory
+12F,44,Field extensions
+12G,45,Homological methods
+12H,46,Differential and difference algebra
+12J,47,Topological fields
+12K,48,Generalizations of fields
+12L,49,Connections with logic
+12Y,50,Computational aspects of field theory and polynomials
+13A,51,General commutative ring theory
+13B,52,Ring extensions and related topics
+13C,53,Theory of modules and ideals
+13D,54,Homological methods
+13E,55,"Chain conditions, finiteness conditions"
+13F,56,Arithmetic rings and other special rings
+13G,57,Integral domains
+13H,58,Local rings and semilocal rings
+13J,59,Topological rings and modules
+13L,60,Applications of logic to commutative algebra
+13M,61,Finite commutative rings
+13N,62,Differential algebra
+13P,63,Computational aspects and applications
+14A,64,Foundations
+14B,65,Local theory
+14C,66,Cycles and subschemes
+14D,67,"Families, fibrations"
+14E,68,Birational geometry
+14F,69,(Co)homology theory
+14G,70,Arithmetic problems. Diophantine geometry
+14H,71,Curves
+14J,72,Surfaces and higher-dimensional varieties
+14K,73,Abelian varieties and schemes
+14L,74,Algebraic groups
+14M,75,Special varieties
+14N,76,Projective and enumerative geometry
+14P,77,Real algebraic and real analytic geometry
+14Q,78,Computational aspects in algebraic geometry
+14R,79,Affine geometry
+14T,80,Tropical geometry
+15A,81,Basic linear algebra
+15B,82,Special matrices
+16B,83,General and miscellaneous
+16D,84,"Modules, bimodules and ideals"
+16E,85,Homological methods
+16G,86,Representation theory of rings and algebras
+16H,87,Algebras and orders
+16K,88,Division rings and semisimple Artin rings
+16L,89,Local rings and generalizations
+16N,90,Radicals and radical properties of rings
+16P,91,"Chain conditions, growth conditions, and other forms of finiteness"
+16R,92,Rings with polynomial identity
+16S,93,Rings and algebras arising under various constructions
+16T,94,"Hopf algebras, quantum groups and related topics"
+16U,95,Conditions on elements
+16W,96,Rings and algebras with additional structure
+16Y,97,Generalizations
+16Z,98,Computational aspects of associative rings
+17A,99,General nonassociative rings
+17B,100,Lie algebras and Lie superalgebras
+17C,101,Jordan algebras
+17D,102,Other nonassociative rings and algebras
+18A,103,General theory of categories and functors
+18B,104,Special categories
+18C,105,Categories and theories
+18D,106,Categories with structure
+18E,107,Abelian categories
+18F,108,Categories and geometry
+18G,109,Homological algebra
+19A,110,Grothendieck groups and $K_0$
+19B,111,Whitehead groups and $K_1$
+19C,112,Steinberg groups and $K_2$
+19D,113,Higher algebraic $K$-theory
+19E,114,$K$-theory in geometry
+19F,115,$K$-theory in number theory
+19G,116,$K$-theory of forms
+19J,117,Obstructions from topology
+19K,118,$K$-theory and operator algebras
+19L,119,Topological $K$-theory
+19M,120,Miscellaneous applications of $K$-theory
+20A,121,Foundations
+20B,122,Permutation groups
+20C,123,Representation theory of groups
+20D,124,Abstract finite groups
+20E,125,Structure and classification of infinite or finite groups
+20F,126,Special aspects of infinite or finite groups
+20G,127,Linear algebraic groups and related topics
+20H,128,Other groups of matrices
+20J,129,Connections with homological algebra and category theory
+20K,130,Abelian groups
+20L,131,Groupoids
+20M,132,Semigroups
+20N,133,Other generalizations of groups
+20P,134,Probabilistic methods in group theory
+22A,135,Topological and differentiable algebraic systems
+22B,136,Locally compact abelian groups
+22C,137,Compact groups
+22D,138,Locally compact groups and their algebras
+22E,139,Lie groups
+22F,140,Noncompact transformation groups
+26A,141,Functions of one variable
+26B,142,Functions of several variables
+26C,143,"Polynomials, rational functions"
+26D,144,Inequalities
+26E,145,Miscellaneous topics
+28A,146,Classical measure theory
+28B,147,"Set functions, measures and integrals with values in abstract spaces"
+28C,148,Set functions and measures on spaces with additional structure
+28D,149,Measure-theoretic ergodic theory
+28E,150,Miscellaneous topics in measure theory
+30A,151,General properties
+30B,152,Series expansions
+30C,153,Geometric function theory
+30D,154,"Entire and meromorphic functions, and related topics"
+30E,155,Miscellaneous topics of analysis in the complex domain
+30F,156,Riemann surfaces
+30G,157,Generalized function theory
+30H,158,Spaces and algebras of analytic functions
+30J,159,Function theory on the disc
+30K,160,Universal holomorphic functions
+30L,161,Analysis on metric spaces
+31A,162,Two-dimensional theory
+31B,163,Higher-dimensional theory
+31C,164,Other generalizations
+31D,165,Axiomatic potential theory
+31E,166,Potential theory on metric spaces
+32A,167,Holomorphic functions of several complex variables
+32B,168,Local analytic geometry
+32C,169,Analytic spaces
+32D,170,Analytic continuation
+32E,171,Holomorphic convexity
+32F,172,Geometric convexity
+32G,173,Deformations of analytic structures
+32H,174,Holomorphic mappings and correspondences
+32J,175,Compact analytic spaces
+32K,176,Generalizations of analytic spaces
+32L,177,Holomorphic fiber spaces
+32M,178,Complex spaces with a group of automorphisms
+32N,179,Automorphic functions
+32P,180,Non-Archimedean analysis
+32Q,181,Complex manifolds
+32S,182,Singularities
+32T,183,Pseudoconvex domains
+32U,184,Pluripotential theory
+32V,185,CR manifolds
+32W,186,Differential operators in several variables
+33B,187,Elementary classical functions
+33C,188,Hypergeometric functions
+33D,189,Basic hypergeometric functions
+33E,190,Other special functions
+33F,191,Computational aspects
+34A,192,General theory
+34B,193,Boundary value problems
+34C,194,Qualitative theory
+34D,195,Stability theory
+34E,196,Asymptotic theory
+34F,197,Equations and systems with randomness
+34G,198,Differential equations in abstract spaces
+34H,199,Control problems
+34K,200,Functional-differential and differential-difference equations
+34L,201,Ordinary differential operators
+34M,202,Differential equations in the complex domain
+34N,203,Dynamic equations on time scales or measure chains
+35A,204,General topics
+35B,205,Qualitative properties of solutions
+35C,206,Representations of solutions
+35D,207,Generalized solutions
+35E,208,Equations and systems with constant coefficients
+35F,209,General first-order equations and systems
+35G,210,General higher-order equations and systems
+35H,211,Close-to-elliptic equations and systems
+35J,212,Elliptic equations and systems
+35K,213,Parabolic equations and systems
+35L,214,Hyperbolic equations and systems
+35M,215,Equations and systems of special type
+35N,216,Overdetermined systems
+35P,217,Spectral theory and eigenvalue problems
+35Q,218,Equations of mathematical physics and other areas of application
+35R,219,Miscellaneous topics
+35S,220,Pseudodifferential operators and other generalizations of partial differential operators
+37A,221,Ergodic theory
+37B,222,Topological dynamics
+37C,223,Smooth dynamical systems: general theory
+37D,224,Dynamical systems with hyperbolic behavior
+37E,225,Low-dimensional dynamical systems
+37F,226,Complex dynamical systems
+37G,227,Local and nonlocal bifurcation theory
+37H,228,Random dynamical systems
+37J,229,"Finite-dimensional Hamiltonian, Lagrangian, contact, and nonholonomic systems"
+37K,230,Infinite-dimensional Hamiltonian systems
+37L,231,Infinite-dimensional dissipative dynamical systems
+37M,232,Approximation methods and numerical treatment of dynamical systems
+37N,233,Applications
+37P,234,Arithmetic and non-Archimedean dynamical systems
+39A,235,Difference equations
+39B,236,Functional equations and inequalities
+40A,237,Convergence and divergence of infinite limiting processes
+40B,238,Multiple sequences and series
+40C,239,General summability methods
+40D,240,Direct theorems on summability
+40E,241,Inversion theorems
+40F,242,Absolute and strong summability
+40G,243,Special methods of summability
+40H,244,Functional analytic methods in summability
+40J,245,Summability in abstract structures
+41A,246,Approximations and expansions
+42A,247,Harmonic analysis in one variable
+42B,248,Harmonic analysis in several variables
+42C,249,Nontrigonometric harmonic analysis
+43A,250,Abstract harmonic analysis
+44A,251,"Integral transforms, operational calculus"
+45A,252,Linear integral equations
+45B,253,Fredholm integral equations
+45C,254,Eigenvalue problems
+45D,255,Volterra integral equations
+45E,256,Singular integral equations
+45F,257,Systems of linear integral equations
+45G,258,Nonlinear integral equations
+45H,259,Miscellaneous special kernels
+45J,260,Integro-ordinary differential equations
+45K,261,Integro-partial differential equations
+45L,262,Theoretical approximation of solutions
+45M,263,Qualitative behavior
+45N,264,"Abstract integral equations, integral equations in abstract spaces"
+45P,265,Integral operators
+45Q,266,Inverse problems
+45R,267,Random integral equations
+46A,268,Topological linear spaces and related structures
+46B,269,Normed linear spaces and Banach spaces; Banach lattices
+46C,270,"Inner product spaces and their generalizations, Hilbert spaces"
+46E,271,Linear function spaces and their duals
+46F,272,"Distributions, generalized functions, distribution spaces"
+46G,273,"Measures, integration, derivative, holomorphy"
+46H,274,"Topological algebras, normed rings and algebras, Banach algebras"
+46J,275,Commutative Banach algebras and commutative topological algebras
+46K,276,Topological
+46L,277,Selfadjoint operator algebras
+46M,278,Methods of category theory in functional analysis
+46N,279,Miscellaneous applications of functional analysis
+46S,280,Other
+46T,281,Nonlinear functional analysis
+47A,282,General theory of linear operators
+47B,283,Special classes of linear operators
+47C,284,Individual linear operators as elements of algebraic systems
+47D,285,"Groups and semigroups of linear operators, their generalizations and applications"
+47E,286,Ordinary differential operators
+47F,287,Partial differential operators
+47G,288,"Integral, integro-differential, and pseudodifferential operators"
+47H,289,Nonlinear operators and their properties
+47J,290,Equations and inequalities involving nonlinear operators
+47L,291,Linear spaces and algebras of operators
+47N,292,Miscellaneous applications of operator theory
+47S,293,Other
+49J,294,Existence theories
+49K,295,Optimality conditions
+49L,296,"Hamilton-Jacobi theories, including dynamic programming"
+49M,297,Numerical methods
+49N,298,Miscellaneous topics
+49Q,299,Manifolds
+49R,300,Variational methods for eigenvalues of operators
+49S,301,Variational principles of physics
+51A,302,Linear incidence geometry
+51B,303,Nonlinear incidence geometry
+51C,304,Ring geometry
+51D,305,Geometric closure systems
+51E,306,Finite geometry and special incidence structures
+51F,307,Metric geometry
+51G,308,Ordered geometries
+51H,309,Topological geometry
+51J,310,Incidence groups
+51K,311,Distance geometry
+51L,312,Geometric order structures
+51M,313,Real and complex geometry
+51N,314,Analytic and descriptive geometry
+51P,315,Geometry and physics
+52A,316,General convexity
+52B,317,Polytopes and polyhedra
+52C,318,Discrete geometry
+53A,319,Classical differential geometry
+53B,320,Local differential geometry
+53C,321,Global differential geometry
+53D,322,"Symplectic geometry, contact geometry"
+53Z,323,Applications to physics
+54A,324,Generalities
+54B,325,Basic constructions
+54C,326,Maps and general types of spaces defined by maps
+54D,327,Fairly general properties
+54E,328,Spaces with richer structures
+54F,329,Special properties
+54G,330,Peculiar spaces
+54H,331,"Connections with other structures, applications"
+54J,332,Nonstandard topology
+55M,333,Classical topics
+55N,334,Homology and cohomology theories
+55P,335,Homotopy theory
+55Q,336,Homotopy groups
+55R,337,Fiber spaces and bundles
+55S,338,Operations and obstructions
+55T,339,Spectral sequences
+55U,340,Applied homological algebra and category theory
+57M,341,Low-dimensional topology
+57N,342,Topological manifolds
+57P,343,Generalized manifolds
+57Q,344,PL-topology
+57R,345,Differential topology
+57S,346,Topological transformation groups
+57T,347,Homology and homotopy of topological groups and related structures
+58A,348,General theory of differentiable manifolds
+58B,349,Infinite-dimensional manifolds
+58C,350,Calculus on manifolds; nonlinear operators
+58D,351,Spaces and manifolds of mappings
+58E,352,Variational problems in infinite-dimensional spaces
+58H,353,"Pseudogroups, differentiable groupoids and general structures on manifolds"
+58J,354,Partial differential equations on manifolds; differential operators
+58K,355,Theory of singularities and catastrophe theory
+58Z,356,Applications to physics
+60A,357,Foundations of probability theory
+60B,358,Probability theory on algebraic and topological structures
+60C,359,Combinatorial probability
+60D,360,Geometric probability and stochastic geometry
+60E,361,Distribution theory
+60F,362,Limit theorems
+60G,363,Stochastic processes
+60H,364,Stochastic analysis
+60J,365,Markov processes
+60K,366,Special processes
+62A,367,Foundational and philosophical topics
+62B,368,Sufficiency and information
+62C,369,Decision theory
+62D,370,"Sampling theory, sample surveys"
+62E,371,Distribution theory
+62F,372,Parametric inference
+62G,373,Nonparametric inference
+62H,374,Multivariate analysis
+62J,375,"Linear inference, regression"
+62K,376,Design of experiments
+62L,377,Sequential methods
+62M,378,Inference from stochastic processes
+62N,379,Survival analysis and censored data
+62P,380,Applications
+62Q,381,Statistical tables
+65A,382,Tables
+65B,383,Acceleration of convergence
+65C,384,"Probabilistic methods, simulation and stochastic differential equations"
+65D,385,Numerical approximation and computational geometry
+65E,386,Numerical methods in complex analysis
+65F,387,Numerical linear algebra
+65G,388,Error analysis and interval analysis
+65H,389,Nonlinear algebraic or transcendental equations
+65J,390,Numerical analysis in abstract spaces
+65K,391,"Mathematical programming, optimization and variational techniques"
+65L,392,Ordinary differential equations
+65M,393,"Partial differential equations, initial value and time-dependent initial-boundary value problems"
+65N,394,"Partial differential equations, boundary value problems"
+65P,395,Numerical problems in dynamical systems
+65Q,396,"Difference and functional equations, recurrence relations"
+65R,397,"Integral equations, integral transforms"
+65S,398,Graphical methods
+65T,399,Numerical methods in Fourier analysis
+65Y,400,Computer aspects of numerical algorithms
+65Z,401,Applications to physics
+68M,402,Computer system organization
+68N,403,Software
+68P,404,Theory of data
+68Q,405,Theory of computing
+68R,406,Discrete mathematics in relation to computer science
+68T,407,Artificial intelligence
+68U,408,Computing methodologies and applications
+68W,409,Algorithms
+70A,410,"Axiomatics, foundations"
+70B,411,Kinematics
+70C,412,Statics
+70E,413,Dynamics of a rigid body and of multibody systems
+70F,414,"Dynamics of a system of particles, including celestial mechanics"
+70G,415,"General models, approaches, and methods"
+70H,416,Hamiltonian and Lagrangian mechanics
+70J,417,Linear vibration theory
+70K,418,Nonlinear dynamics
+70L,419,Random vibrations
+70M,420,Orbital mechanics
+70P,421,"Variable mass, rockets"
+70Q,422,Control of mechanical systems
+70S,423,Classical field theories
+74A,424,"Generalities, axiomatics, foundations of continuum mechanics of solids"
+74B,425,Elastic materials
+74C,426,"Plastic materials, materials of stress-rate and internal-variable type"
+74D,427,"Materials of strain-rate type and history type, other materials with memory"
+74E,428,Material properties given special treatment
+74F,429,Coupling of solid mechanics with other effects
+74G,430,Equilibrium
+74H,431,Dynamical problems
+74J,432,Waves
+74K,433,"Thin bodies, structures"
+74L,434,Special subfields of solid mechanics
+74M,435,Special kinds of problems
+74N,436,Phase transformations in solids
+74P,437,Optimization
+74Q,438,"Homogenization, determination of effective properties"
+74R,439,Fracture and damage
+74S,440,Numerical methods
+76A,441,"Foundations, constitutive equations, rheology"
+76B,442,Incompressible inviscid fluids
+76D,443,Incompressible viscous fluids
+76E,444,Hydrodynamic stability
+76F,445,Turbulence
+76G,446,General aerodynamics and subsonic flows
+76H,447,Transonic flows
+76J,448,Supersonic flows
+76K,449,Hypersonic flows
+76L,450,Shock waves and blast waves
+76M,451,Basic methods in fluid mechanics
+76N,452,"Compressible fluids and gas dynamics, general"
+76P,453,"Rarefied gas flows, Boltzmann equation"
+76Q,454,Hydro- and aero-acoustics
+76R,455,Diffusion and convection
+76S,456,Flows in porous media; filtration; seepage
+76T,457,Two-phase and multiphase flows
+76U,458,Rotating fluids
+76V,459,Reaction effects in flows
+76W,460,Magnetohydrodynamics and electrohydrodynamics
+76X,461,Ionized gas flow in electromagnetic fields; plasmic flow
+76Y,462,Quantum hydrodynamics and relativistic hydrodynamics
+76Z,463,Biological fluid mechanics
+78A,464,General
+78M,465,Basic methods
+81P,466,"Axiomatics, foundations, philosophy"
+81Q,467,General mathematical topics and methods in quantum theory
+81R,468,Groups and algebras in quantum theory
+81S,469,General quantum mechanics and problems of quantization
+81T,470,Quantum field theory; related classical field theories
+81U,471,Scattering theory
+81V,472,Applications to specific physical systems
+82B,473,Equilibrium statistical mechanics
+82C,474,Time-dependent statistical mechanics
+82D,475,Applications to specific types of physical systems
+83A,476,Special relativity
+83B,477,Observational and experimental questions
+83C,478,General relativity
+83D,479,"Relativistic gravitational theories other than Einstein’s, including asymmetric field theories"
+83E,480,"Unified, higher-dimensional and super field theories"
+83F,481,Cosmology
+90B,482,Operations research and management science
+90C,483,Mathematical programming
+91A,484,Game theory
+91B,485,Mathematical economics
+91C,486,Social and behavioral sciences: general topics
+91D,487,Mathematical sociology
+91E,488,Mathematical psychology
+91F,489,Other social and behavioral sciences
+91G,490,Mathematical finance
+92B,491,Mathematical biology in general
+92C,492,"Physiological, cellular and medical topics"
+92D,493,Genetics and population dynamics
+92E,494,Chemistry
+92F,495,Other natural sciences
+93A,496,General
+93B,497,"Controllability, observability, and system structure"
+93C,498,Control systems
+93D,499,Stability
+93E,500,Stochastic systems and control
+94A,501,"Communication, information"
+94B,502,Theory of error-correcting codes and error-detecting codes
+94C,503,"Circuits, networks"
+94D,504,Fuzzy sets and logic
+97A,505,"General, mathematics and education"
+97B,506,Educational policy and systems
+97C,507,"Psychology of mathematics education, research in mathematics education"
+97D,508,Education and instruction in mathematics
+97E,509,Foundations of mathematics
+97F,510,"Arithmetic, number theory"
+97G,511,Geometry
+97H,512,Algebra
+97I,513,Analysis
+97K,514,"Combinatorics, graph theory, probability theory, statistics"
+97M,515,"Mathematical modeling, applications of mathematics"
+97N,516,Numerical mathematics
+97P,517,Computer science
+97Q,518,Computer science education
+97R,519,Computer science applications
+97U,520,"Educational material and media, educational technology"
