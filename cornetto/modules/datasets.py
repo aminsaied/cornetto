@@ -13,20 +13,48 @@ ROOT_DIR = '../data/training_data/'
 UNIGRAM_DIR = ROOT_DIR + '-unigram_training_data_DEPTH'
 RNN_DIR = ROOT_DIR + "-rnn_training_data_DEPTH"
 
-def load_arxiv(depth = 5):
+INPUT_ = 'Abstract'
+OUTPUT_ = 'MSCs'
+
+def search_files(data_dir):
+    for (dirpath, dirnames, filenames) in os.walk(data_dir):
+        print( 'Which file would you like to select?')
+        for i, filename in enumerate(filenames):
+            print('%s. %s'%(i, filename))
+        index_str = input('Make a selection. Empty input to quit.\n')
+        try:
+            index = int(index_str)
+        except (ValueError, TypeError):
+            return
+        assert index in range(len(filenames))
+        return filenames[index]
+
+def read_raw_arxiv_data(path_and_filename):
     """
-    Loads processed arxiv of specified depth.
+    NOTE: filename should have extention!
+    """
+    print("Reading data...")
+    try:
+        df = pd.read_pickle(path_and_filename)
+    except FileNotFoundError:        
+        print("File not found.")
+        df = pd.DataFrame(columns=[INPUT_, OUTPUT_])
+    
+    return df[[INPUT_, OUTPUT_]]
+        
+def load_arxiv(path_and_filename=None, depth = 5):
+    """
+    Loads *processed* arxiv of specified depth.
     See 'containers' for details of processing.
     -- depth: int (default = 5)
     """
-    DIR = '../data/arxiv/'
-    ARXIV = "-arxiv_processed"
-    EXT = ".pkl"
+    if not path_and_filename:
+        path_and_filename = '../data/arxiv/-arxiv_processed.pkl'
 
-    arxiv = pd.read_pickle(DIR+ARXIV+EXT)
+    arxiv = pd.read_pickle(path_and_filename)
 
     if depth != 5:
-        arxiv['MSCs'] = MSCCleaner._specify(arxiv['MSCs'], depth=depth)
+        arxiv['MSCs'] = MSCCleaner.specify_depth(arxiv['MSCs'], depth=depth)
 
     return arxiv
 

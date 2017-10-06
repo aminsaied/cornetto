@@ -1,36 +1,41 @@
+"""
+This script is desined to do two things. First, it 
+processes the arxiv datafraem collected by 'harvest_arxiv.py'.
+Namely, it
+  * removes punctuation and math equations from abstracts
+  * keeps only nouns, proper nouns and adjectives
+  * learns phrases (2-grams) and joins the words in them by '_' 
+  * only keeps valid MSC labels, and abstracts with enough words in them
+Moreover, while processing the dataframe it learns a vocabulary:
+collection of words and phrases (object of Vocab class) to be 
+used in all the other parts of the project. 
+"""
 import numpy as np
 import pandas as pd
-import re
 
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from modules.container_builders import VocabBuilder as VB
 from modules.container_builders import PhraseBuilder as PB
-from modules.container_builders import TFIDFBuilder as TFB
 from modules.arxiv_processor import PrepareInput, MSCCleaner
-from modules.containers import VocabParams, MSC
-from modules.text_processor import TextCleaner, WordSelector
+from modules.text_processor import TextCleaner
+from modules.datasets import search_files, read_raw_arxiv_data, INPUT_, OUTPUT_
 
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.preprocessing import MultiLabelBinarizer
 
+ARXIV_DATA_DIR = '../data/arxiv_raw/'
+ARXIV_PROC_DIR = '../data/arxiv/'
 
-ARXIV_DATA_PATH = '../data/arxiv/'
-ARXIV_FILE = '-arxiv_60000.pkl'
-INPUT_ = 'Abstract'
-OUTPUT_ = 'MSCs'
-VOCAB_DIR = '-vocab'
-ARXIV_PROC_DIR = '-arxiv_processed'
+VOCAB_DIR = '../data/vocab/'
+VOCAB_PREFIX = '-vocab_'
+PROCESSED_PREFIX = '-processed_'
+
 PHRASE_PERCENT = 0.7
+MIN_ABSTR = 10
 DEPTH = 5
-
-def read_data():
-    print("Reading data...")
-    df = pd.read_pickle(ARXIV_DATA_PATH+ARXIV_FILE)[[INPUT_, OUTPUT_]]
-    return df
-
+    
 class DataFrameSelector(BaseEstimator, TransformerMixin):
     """Returns series from pandas dataframe."""
     def __init__(self, column):
@@ -67,8 +72,8 @@ class VocabSelector(BaseEstimator, TransformerMixin):
     def transform(self, X, y=None):
         temp_vocab = VocabSelector._build_vocab(X)
         phrases = VocabSelector._build_phrases(X, temp_vocab)
-
         phrases_vocab = phrases.to_vocab()
+        
         vocab = temp_vocab + phrases_vocab
 
         return vocab
@@ -76,8 +81,7 @@ class VocabSelector(BaseEstimator, TransformerMixin):
     @staticmethod
     def _build_vocab(sentences):
         print("Building the vocabulary.")
-        params = VocabParams.Values()
-        vb = VB(params)
+        vb = VB()
         vocab = vb.from_sentences(sentences)
         return vocab
 
@@ -90,8 +94,12 @@ class VocabSelector(BaseEstimator, TransformerMixin):
         return phrases
 
 if __name__ == "__main__":
+    
+    filename = search_files(ARXIV_DATA_DIR)
+    if not filename:
+        sys.exit()
 
-    arxiv = read_data()
+    arxiv = read_raw_arxiv_data(ARXIV_DATA_DIR+filename)
 
     target_pipeline = Pipeline([
             ('selector'       , DataFrameSelector(OUTPUT_) ),
@@ -113,16 +121,24 @@ if __name__ == "__main__":
     ])
 
     vocab = vocab_pipeline.fit_transform(sentences_series)
-    vocab.save(VOCAB_DIR)
+    # need to use '-4' to remove the extension...
+    # TODO: re-write it pretty
+    vocab.save(VOCAB_DIR+VOCAB_PREFIX+filename[-4:])
 
     # update the input of the df by picking the words from vocab and
     # creating phrases by joining words with '_'
     # TODO rename this class to be more desciptive
-    series_with_phrases = PrepareInput.from_series(sentences_series, vocab)
+    phrases_series = PrepareInput.from_series(sentences_series, vocab)
 
-    arxiv_processed = pd.concat([series_with_phrases, msc_series], axis=1)
-
-    arxiv_processed = arxiv_processed.drop(arxiv_processed.loc[msc_series.apply(len)==0].index)
-    arxiv_processed = arxiv_processed.drop(arxiv_processed.loc[series_with_phrases.apply(len)<10].index)
-
-    pd.to_pickle(arxiv_processed, ARXIV_PROC_DIR + '.pkl')
+    arxiv_processed = pd.concat([phrases_series, msc_series], axis=1)
+    
+    # drop rows with no valid labels (MSC codes)
+    no_valid_label = arxiv_processed.loc[msc_series.apply(len)==0].index
+    arxiv_processed = arxiv_processed.drop(no_valid_label)
+    
+    # drop rows with < MIN_ABSTR words in the abstract
+    too_short = arxiv_processed.loc[phrases_series.apply(len)<MIN_ABSTR].index
+    arxiv_processed = arxiv_processed.drop(too_short)
+    
+    proc_path = ARXIV_PROC_DIR + PROCESSED_PREFIX + filename
+    pd.to_pickle(arxiv_processed, proc_path)

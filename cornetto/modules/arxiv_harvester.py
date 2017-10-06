@@ -5,8 +5,9 @@ import pandas as pd
 
 START_URL_TEMPLATE = 'http://export.arxiv.org/oai2?verb=ListRecords&set=math&metadataPrefix=arXiv&from=%s&until=%s'
 NEXT_URL_TEMPLATE  = 'http://export.arxiv.org/oai2?verb=ListRecords&resumptionToken=%s'
-ARXIV_DATA_PATH = "../data/arxiv/"
+ARXIV_DATA_PATH = "../data/arxiv_raw/"
 NAME_TEMPLATE = 'arxiv_%s.pkl'
+DELIMITER = "|"
 
 class ArxivHarvester(object):
     """
@@ -94,7 +95,6 @@ class ArxivHarvester(object):
     @staticmethod
     def _get_metadata(soup_entry):
         xstr = lambda s: '' if s is None else str(s)
-        DELIMITER = "|"
         
         arXiv_id = xstr(soup_entry.id.string)
         title = xstr(soup_entry.title.string)

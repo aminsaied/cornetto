@@ -1,5 +1,4 @@
 # import standard libraries
-import numpy as np
 import pandas as pd
 
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -8,6 +7,7 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 
 from containers import MSC
+from arxiv_harvester import DELIMITER
 
 class MSCCleaner(BaseEstimator, TransformerMixin):
     """
@@ -18,15 +18,15 @@ class MSCCleaner(BaseEstimator, TransformerMixin):
 
     DEPTH = 5
     def __init__(self, depth=DEPTH):
-        self.depth         = depth
-        self.msc_bank     = MSC.load(depth)
+        self.depth = depth
+        self.msc_bank = MSC.load(depth)
 
     def fit(self, X, y=None):
         return self
 
     def transform(self, X, y=None):
         X_as_list = self._to_list(X)
-        X_specified = self._specify(X_as_list, self.depth)
+        X_specified = self.specify_depth(X_as_list, self.depth)
         X_valid = self._are_valid(X_specified, self.msc_bank)
 
         return X_valid
@@ -36,11 +36,11 @@ class MSCCleaner(BaseEstimator, TransformerMixin):
         """
         Converts string of MSCs to list of MSCs
         """
-        to_list = lambda codes_string: codes_string.split()
+        to_list = lambda codes_string: codes_string.split(DELIMITER)
         return X.apply(to_list)
 
     @staticmethod
-    def _specify(X, depth):
+    def specify_depth(X, depth):
         """
         Selects MSC codes of desired depth 2, 3 or 5 digit. Removes
         duplicate codes that this may create.
@@ -151,7 +151,7 @@ class PrepareOutput(object):
         """
         Transforms a dataframe with two columns, inputs and outputs, 
         with several possible outputs for a given input, 
-        into a gataframe with one input/ one output by repeating the inputs. 
+        into a dataframe with one input/ one output by repeating the inputs. 
         I.e., for example dataframe 
             ______________________
             'input_1' | ['a','b']
@@ -194,4 +194,5 @@ class PrepareOutput(object):
                 new_row = [row[input_], code]
                 df_proc.loc[count] = new_row
                 count += 1
+        print(index)
         return df_proc
