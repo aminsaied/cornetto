@@ -152,16 +152,17 @@ class PhraseBuilder(object):
 
         JP_array = self._joint_prob(prob_vector, context_count_matrix/N_contexts)
         DP_array = self._disjoint_prob(prob_vector)
-        log = np.log2(np.divide(JP_array, DP_array))
-        I =  np.sum( JP_array * log, axis=0)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            log = np.log2(np.divide(JP_array, DP_array))
+            I =  np.sum( JP_array * log, axis=0)
         return np.nan_to_num(I)
 
     def _pick_phrases(self, I, N_phrases):
         """Returns dictionary with keys tuples (first_word, second_word)
            built from phrases"""
         first, second = np.unravel_index(np.argsort(I, axis=None)[-N_phrases:], I.shape)
-        first_words = self.vocab[list(first)]
-        second_words = self.vocab[list(second)]
+        first_words = self.vocab[list(map(int, first))]
+        second_words = self.vocab[list(map(int, second))]
 
         return list(zip(first_words, second_words))
 
