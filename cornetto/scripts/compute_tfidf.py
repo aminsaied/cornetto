@@ -39,7 +39,7 @@ if __name__ == "__main__":
     vocab_file = search_files(VOCAB_DIR)
     # need to use '-4' to remove the extension...
     # TODO: re-write it pretty
-    vocab = Vocab.load(VOCAB_DIR+vocab_file[-4:])
+    vocab = Vocab.load(VOCAB_DIR+vocab_file[:-4])
     
     print("Loading the arxiv dataset...")
     print("Choose arxiv file to train TF-IDF on.")

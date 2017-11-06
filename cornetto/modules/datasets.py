@@ -7,7 +7,6 @@ from arxiv_processor import MSCCleaner
 from containers import MSC
 from data_handlers import UnigramTrainingData
 from data_handlers import RNNTrainingData
-from data_handlers import WordToVecModel
 
 ROOT_DIR = '../data/training_data/'
 UNIGRAM_DIR = ROOT_DIR + '-unigram_training_data_DEPTH'
@@ -57,15 +56,6 @@ def load_arxiv(path_and_filename=None, depth = 5):
         arxiv['MSCs'] = MSCCleaner.specify_depth(arxiv['MSCs'], depth=depth)
 
     return arxiv
-
-def load_word2vec(dim=50):
-    """
-    Loads standard word2vec model.
-    -- dim: int default(50), 50, 70 or 100, dimension of the word vectors
-    """
-    DIR = './data/word2vec_models/'
-    W2V_MODEL = '-w2v_model_'
-    return WordToVecModel.load(DIR+W2V_MODEL+str(dim))
 
 def load_rnn_training_data_builder(selection = None, depth = 5):
     """Loads standard RNN training data builder."""

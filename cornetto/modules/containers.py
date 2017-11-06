@@ -10,10 +10,15 @@ from scipy import sparse
 from collections import namedtuple
 from copy import deepcopy
 
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+
 thismodule = sys.modules[__name__]
 
-MSC_DATA_PATH = '../data/msc_classes/'
-MSC_FILENAME_TEMPLATE = MSC_DATA_PATH+'%s_digit'
+import data
+# MSC_DATA_PATH = 'data/msc_classes/'
+MSC_DATA_PATH = os.path.dirname(data.__file__)
+MSC_FILENAME_TEMPLATE = MSC_DATA_PATH+'/msc_classes/' + '%s_digit'
 
 class _SortedContainer(object):
     """

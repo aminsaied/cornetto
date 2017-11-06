@@ -1,49 +1,63 @@
 import numpy as np
 import pandas as pd
+
+import warnings
+warnings.filterwarnings(action='ignore', category=UserWarning, module='gensim')
+
 from gensim.models import word2vec
 
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 
+import data
 from text_processor import WordSelector
-from data_handlers import WordToVecModel
 
+class WordToVecModel(object):
+    """
+    Handles the word2vec dictionary.
+    """
+    
+    PATH = os.path.dirname(data.__file__)+'/models/w2v/'
+    
+    def __init__(self, w2v_dict=dict(), dim=100):
+        self._w2v_dict = w2v_dict
+        self.dim = dim
 
-class WordToVecDict(object):
-    """Parent class constructing word2vec models."""
-    def __init__(self):
-        pass
+    def __getitem__(self, word):
+        return self._w2v_dict[word]
 
-    def build(self):
-        """Retuns a WordToVecModel."""
-        words = self.vocab.sorted_keys
+    def __len__(self):
+        return len(self._w2v_dict)
 
-        if self.model:
-            vectors = [self._convert(word) for word in words if
-                      (word in self.vocab and word in self.model) ]
-        else:
-            vectors = [self._convert(word) for word in words if
-                       (word in self.vocab) ]
+    def __contains__(self, word):
+        return (word in self._w2v_dict)
 
-        d = dict(zip(words, vectors))
-        return WordToVecModel(d)
+    def save(self, filename):
+        EXT = ".pkl"
+        data = (self._w2v_dict, self.dim)
+        pd.to_pickle(data, self.__class__.PATH+filename+EXT)
 
-    def _convert(self, word):
-        pass
+    @classmethod
+    def load(cls, filename):
+        EXT = ".pkl"
+        data = pd.read_pickle(cls.PATH+filename+EXT)
+        return cls(*data)
 
-class GensimWordToVecBuilder(WordToVecDict):
+class GensimWordToVec(WordToVecModel):
     """Simple wrapper for the Gensim WordToVec model."""
-    def __init__(self, series, vocab, size=100, window=20):
-        """
-        -- series: pandas Series, containing lists of words
-        """
-        sentences = series.tolist()
-        self.model = word2vec.Word2Vec(sentences)
-
-    def _convert(self, word):
-        return self.model[word]
-
-class SVDWordToVec(WordToVecDict):
+        
+    def fit(self, sentences, vocab, window=20):
+        # TODO: don't we assume sentences are already built out of words from vocab?
+        # so maybe we can omit vocab as input
+        
+        # works for either pd.Series or just a list
+        sentences = list(sentences)
+        model = word2vec.Word2Vec(sentences, size=self.dim, window=window)
+        words = [word for word in vocab if word in model]
+        vectors = [model[word] for word in words]
+        self._w2v_dict = dict(zip(words, vectors))
+        
+class SVDWordToVec(WordToVecModel):
     """
     Uses SVD to produce word embeddings.
     """
@@ -71,7 +85,3 @@ class SVDWordToVec(WordToVecDict):
                 A[self.index(word)][text_index] += 1
         U, __, __ = np.linalg.svd(A)
         self.word_vectors = U[:, :self.dim]
-
-    def _convert(self, word):
-        index = self.index(word)
-        return self.word_vectors[index]

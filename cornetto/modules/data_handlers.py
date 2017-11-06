@@ -2,11 +2,10 @@
 import pandas as pd
 import numpy as np
 from itertools import combinations
+from functools import partial
 
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
-
-from text_processor import WordSelector
 
 class PairedData(object):
     """
@@ -180,64 +179,6 @@ class T2VTrainingData(TrainingData):
         validation = PairedData( X[:, cuts[1] : ], Y[:, cuts[1] : ] )
         return training, test, validation
 
-class Word2VecTrainingData(T2VTrainingData):
-
-    def __init__(self, X, Y):
-        super().__init__(X,Y)
-
-    @classmethod
-    def from_dataframe(cls, texts, vocab):
-        """
-        Given a series of texts, create the training data for Word2Vec model
-        """
-        word_selector = WordSelector(vocab)
-        select = lambda text: word_selector.select_words(text)
-        texts_as_words = texts.apply(select)
-        temp1, temp2 = zip(*texts_as_words.map(Word2VecTrainingData._create_pairs))
-        X = np.hstack(temp1)
-        Y = np.hstack(temp2)
-        return cls(X,Y)
-
-    @staticmethod
-    def _create_pairs(words):
-        X, Y = [], []
-        PAIR = 2
-        if words and (len(words) > 1):
-            pairs = combinations(words,r=PAIR)
-            X,Y = list(zip(*pairs))
-        return np.array(X).reshape(1, -1), np.array(Y).reshape(1,-1)
-
-class WordToVecModel(object):
-    """
-    Handles the word2vec dictionary.
-    """
-    def __init__(self, w2v_dict):
-        self._w2v_dict = w2v_dict
-        self.dim = self._get_dim()
-
-    def __getitem__(self, word):
-        return self._w2v_dict[word]
-
-    def __len__(self):
-        return len(self._w2v_dict)
-
-    def __contains__(self, word):
-        return (word in self._w2v_dict)
-
-    def _get_dim(self):
-        a_vec = list(self._w2v_dict.values())[0]
-        return len(a_vec)
-
-    def save(self, filename):
-        EXTENSION = ".pkl"
-        data = self._w2v_dict
-        pd.to_pickle(data, filename+EXTENSION)
-
-    @classmethod
-    def load(cls, filename):
-        EXTENSION = ".pkl"
-        data = pd.read_pickle(filename+EXTENSION)
-        return cls(data)
 
 class RNNData(object):
     """
@@ -259,43 +200,26 @@ class RNNTrainingData(TrainingData):
     Creates and handles training data for our recurrent neural networks.
     """
 
-    def __init__(self, w2v_model, msc_bank, selection=None, n_steps=50):
-        """
-        -- w2v_model: WordToVecModel
-        -- msc_bank: MSC, see 'containers'
-        -- selection: list or (default) None, of codes to keep
-        -- test_size: int (default 1000), number of test examples
-        -- n_steps: int (default 50) or None, the rnn will only
-             read up to this many words. If None, then automatically
-             selects length of longest abstract.
-        """
-        self.n_steps   = n_steps
-        self.w2v_model = w2v_model
-        self.n_inputs  = w2v_model.dim
-        self.msc_bank  = msc_bank
-        if selection:
-            self.msc_bank = msc_bank.keep_keys(selection)
-
-    def build(self, arxiv):
+    @classmethod
+    def build(cls, arxiv, w2v_model, msc_bank, n_steps=50):
         """
         Returns a TrainingData object suited to train our RNNs.
         Option to choose a smaller selection of codes on which to train.
         -- arxiv: dataframe, prepared arxiv dataframe, see 'datasets'
         """
-        if self.n_steps == None:
-            self.n_steps = np.max(arxiv.Abstract.apply(len).tolist())
+        # TODO: make sure that both primary and non=primary work fine
+        
+        arxiv_codes, arxiv_sentences = cls._make_input_output(arxiv, msc_bank)
 
-        arxiv_primary, arxiv_sentences = self._make_input_output(arxiv)
-
-        input_  = self._build_input(arxiv_sentences)
-        length_ = self._build_length(arxiv_sentences)
-        output_ = self._build_output(arxiv_primary)
-
-        training_data = self._training_data(input_, length_, output_)
-
-        return training_data
-
-    def _make_input_output(self, arxiv, primary=True):
+        input_  = cls.build_input(arxiv_sentences, w2v_model, n_steps)
+        length_ = cls._build_length(arxiv_sentences)
+        output_ = cls.build_output(arxiv_codes, msc_bank)
+        
+        dim_output = len(msc_bank)
+        return cls(*cls._make_cut(input_, length_, output_, dim_output))
+    
+    @classmethod
+    def _make_input_output(cls, arxiv, msc_bank, primary=True):
         """
         Returns input/output series containing only those papers
         with the desired msc codes.
@@ -303,15 +227,16 @@ class RNNTrainingData(TrainingData):
         """
         arxiv_shuffled = arxiv.sample(frac=1, random_state=73).reset_index(drop=True)
 
-        in_selection = lambda codes: (codes[0] in self.msc_bank)
+        in_selection = lambda codes: (codes[0] in msc_bank)
         valid = arxiv_shuffled.MSCs.apply(in_selection)
         arxiv_sample = arxiv_shuffled[valid != False].reset_index(drop=True)
+        # TODO: do not use the names of the columns!!!
         arxiv_sentences = arxiv_sample.Abstract
 
         if primary:
-            arxiv_codes = self._select_primary(arxiv_sample.MSCs)
+            arxiv_codes = cls._select_primary(arxiv_sample.MSCs)
         else:
-            arxiv_codes = self._select_all_codes(arxiv_sample.MSCs, self.msc_bank)
+            arxiv_codes = cls._select_all_codes(arxiv_sample.MSCs, msc_bank)
 
         return arxiv_codes, arxiv_sentences
 
@@ -329,79 +254,60 @@ class RNNTrainingData(TrainingData):
         convert_to_int = lambda index: [int(id_) for id_ in index]
         y = one_hot_codes.apply(convert_to_int)
         return np.array(y.tolist())
-
-    def _build_input(self, arxiv_sentences):
+    
+    @classmethod
+    def build_input(cls, arxiv_sentences, w2v_model, n_steps):
         """
         Returns array of np arrays built from sentences by
-        containing the corresponding word vectors (padded
+        concatenating the corresponding word vectors (padded
         with zero vectors).
         -- arxiv_sentences: series
         """
-        f = lambda sentence: self._build_rnn_input(sentence)
+        f = partial(cls.build_rnn_input, w2v_model=w2v_model, n_steps=n_steps )
         input_series = arxiv_sentences.apply(f)
         return np.array(input_series.tolist())
-
-    def _build_output(self, arxiv_primary):
+    
+    @staticmethod
+    def build_output(arxiv_primary, msc_bank):
         """
         Returns array of primary MSC codes' indices. Looks up
         index of MSC code in the msc_bank.
         -- arxiv_primary: series, of codes (as strings)
         """
-        f = lambda code: self.msc_bank[code].id
+        f = lambda code: msc_bank[code].id
         output_series = arxiv_primary.apply(f)
         return np.array(output_series.tolist())
 
-    def _build_output_with_all_codes(self, arxiv_primary):
-        """
-        Returns array of all MSC codes'.
-        -- arxiv_primary: series, of codes (as strings)
-        """
-        one_hot_codes = arxiv_primary.apply(self.msc_bank.one_hot).reset_index(drop=True)
-        convert_to_int = lambda index: [int(id_) for id_ in index]
-        y = one_hot_codes.apply(convert_to_int)
-        return np.array(y.tolist())
-
-    def _build_length(self, arxiv_sentences):
+    @staticmethod
+    def _build_length(arxiv_sentences):
         return np.array(arxiv_sentences.apply(len).tolist())
-
-    def _build_rnn_input(self, sentence):
+    
+    @staticmethod
+    def build_rnn_input(sentence, w2v_model, n_steps):
         """
         Returns a 2-tensor of shape=(n_steps, n_inputs),
         i.e., with rows = word_vectors
         Fills the remaining rows with zeros
         """
-        sent = sentence[:self.n_steps] # trim sentence
-        vecs = np.array([self.w2v_model[w] for w in sent if w in self.w2v_model])
-        input_ = np.zeros((self.n_steps, self.n_inputs))
+        sent = sentence[:n_steps] # trim sentence
+        vecs = np.array([w2v_model[w] for w in sent if w in w2v_model])
+        input_ = np.zeros((n_steps, w2v_model.dim))
         input_[:vecs.shape[0]] = vecs
         return input_
-
-    def _training_data(self, input_, length_, output_, test_cut_off=1000):
+    
+    @staticmethod
+    def _make_cut(input_, length_, output_, dim_output, test_cut_off=1000):
         """
         Returns a TrainingData object holding the training and test data for an RNN.
         TrainingData consists of RNNData, which itself is a triple of (X, length, Y).
         """
         test_size = min(len(output_)*10//100, test_cut_off)
-        dim_output = len(self.msc_bank)
 
         input_train, input_test   = input_[:-test_size], input_[-test_size:]
         length_train, length_test = length_[:-test_size], length_[-test_size:]
         output_train, output_test = output_[:- test_size], output_[-test_size:]
 
         training = RNNData(input_train, length_train, output_train, dim_output)
-        testing  = RNNData(input_test, length_test, output_test, dim_output)
+        test  = RNNData(input_test, length_test, output_test, dim_output)
 
-        return TrainingData(training, testing)
-
-    def training_data_with_all_codes(self, arxiv):
-        """Keeps all (not only primary) MSC codes."""
-
-        if self.n_steps == None:
-            self.n_steps = np.max(arxiv.Abstract.apply(len).tolist())
-
-        y, arxiv_sentences = self._make_input_output(arxiv, primary=False)
-
-        input_  = self._build_input(arxiv_sentences)
-        length_ = self._build_length(arxiv_sentences)
-
-        return input_, length_, y
+        return training, test
