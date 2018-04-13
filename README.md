@@ -1,31 +1,25 @@
-# The Cornetto Classification Library
-Welcome to cornetto! The aim of this library is to build a mathematics classifier. More specifically, we build a variety of machine learning models, including:  
+# Cornetto
+The purpose of this library is to build a mathematics classifier. You'll find scripts that:
 
-- neural networks (fully connected/RNNs)
-- SVMs
-- naive Bayes models
+- scrape and preprocess data from the [arXiv](https://arxiv.org/archive/math)
+- build and train RNN models using TensorFlow
+- build and train Unigram models
+- compute statistical anaysis of text (e.g., TFIDF)
 
-designed to read a mathematics text, such as an abstract of a paper, and to predict its subject. We choose to use the standard [Mathematics Subject Classification](https://en.wikipedia.org/wiki/Mathematics_Subject_Classification) (henceforth, MSC) to enumerate our subjects.
+using our Cornetto library (see `modules`).
 
-Please note: this library is still under construction.
+### Example - training our RNN
+First you need to create the training data. Use the class `RNNTrainingData` from the `data_handlers.py` module.
 
-## Our Data
-We built a database from the mathematics arxiv (https://arxiv.org/archive/math) consisting of:
+~~~~
+rnn_training_data = RNNTrainingData.build([...])
+~~~~
 
-- Title
-- Authors
-- Abstract
-- Date
-- MSC code (this is an optional field in arXiv!)  
+See `data_handlers` for more details on the `build` method. This gets passed directly to our `RNNModel` class from `rnn_model.py`.
 
-We found that _only about half_ of the papers on the arXiv have actually been labelled with their MSC code. We use this half to train our models and test our models. Furthermore, we have built a website where you can use our models to classify your own texts and abstracts. Check it out [here](http://classifythatabstract.herokuapp.com/) (please note that this is still under construction).
+~~~~
+model = RNNModel(model_params)
+model.fit(rnn_training_data)
+~~~~
 
-Our code is written in Python 3. We have written a series of modules and scripts to facilitate:
-
-- scraping data from the web
-- processing data
-- handling data
-- training models
-- using trained models
-
-Libraries we use heavily: numpy, pandas, tensorflow, scikit-learn.
+You can save and load models with `model.save([...])` and `model.load([...])`.
