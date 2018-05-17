@@ -1,6 +1,12 @@
-# import standard libraries
-import pandas as pd
+#!/usr/bin/env python3
+"""Preprocesses arxiv metadata for training machine learning models.
 
+Pipeline in the `sklearn` framework that:
+    - extracts MSC codes
+    - builds n-grams (called 'phrases' here)
+    - multiplies data to expand training set
+"""
+import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
 import sys, os
@@ -15,7 +21,6 @@ class MSCCleaner(BaseEstimator, TransformerMixin):
     of specified depths.
     NB. depth = 2, 3, or 5 (default)
     """
-
     DEPTH = 5
     def __init__(self, depth=DEPTH):
         self.depth = depth
@@ -60,23 +65,23 @@ class MSCCleaner(BaseEstimator, TransformerMixin):
 
 class PrepareInput(object):
     """
-    This class is a collection of methods, whose purpose is 
-    to take a dataframe or a series containing lists of strings 
-    (lists of words, a.k.a. sentences) and only keep the ones appearing 
-    in a given vocabulary. This includes checking pairs of words 'w1_w2'. 
+    This class is a collection of methods, whose purpose is
+    to take a dataframe or a series containing lists of strings
+    (lists of words, a.k.a. sentences) and only keep the ones appearing
+    in a given vocabulary. This includes checking pairs of words 'w1_w2'.
     We call such pairs 'phrases'.
     """
     @classmethod
     def from_dataframe(cls, df, vocab):
         """
-        Given a dataframe with two columns, 
+        Given a dataframe with two columns,
         returns a new dataframe with two columns, input and output.
-        Input is a list of words 
-        (and new words of the form 'w1_w2' for words w1,w2. 
-        Such words we call 'phrases') in vocab. 
+        Input is a list of words
+        (and new words of the form 'w1_w2' for words w1,w2.
+        Such words we call 'phrases') in vocab.
         We refer to lists of words in vocab as 'sentences'
         Input:
-          -- df: pd.DataFrame, with two columns, the first column 
+          -- df: pd.DataFrame, with two columns, the first column
           contains list of words (strings)
           -- vocab: Vocab, of words and phrases
         Output:
@@ -92,10 +97,10 @@ class PrepareInput(object):
     def from_series(cls, series, vocab):
         """
         # Given a series, each entry being a list of words (sentence),
-        returns a new pd.Series with each antry a list of words 
-        (including new words of the form 'w1_w2' 
-        for words w1,w2 from the original sentence. 
-        Such new words we call 'phrases') in vocab. 
+        returns a new pd.Series with each antry a list of words
+        (including new words of the form 'w1_w2'
+        for words w1,w2 from the original sentence.
+        Such new words we call 'phrases') in vocab.
         Input:
           -- series: pd.Series, each entry a list of words (strings)
           -- vocab: Vocab, of words and phrases
@@ -109,8 +114,8 @@ class PrepareInput(object):
     @staticmethod
     def from_sentence(sentence, vocab):
         """
-        Given a list of words (sentence), returns a list of 
-        words in it that appear in vocab. Also checks appearanec of words 
+        Given a list of words (sentence), returns a list of
+        words in it that appear in vocab. Also checks appearanec of words
         of the form 'w1_w2' for words w1,w2 from the original sentence.
         Input:
           -- sentence : List[str], list of words
@@ -126,15 +131,15 @@ class PrepareInput(object):
             if phrase in vocab:
                 words_in_vocab.append(phrase)
         return words_in_vocab
-        
+
         return cls._in_vocab(sentence, vocab)
 
 class PrepareOutput(object):
     """
-    This class is designed to transform a dataframe with two columns of 
-    inputs-outputs with several possible outputs for a given input 
-    into a gataframe with one input/ one output by repeating the inputs. 
-    I.e., for example dataframe 
+    This class is designed to transform a dataframe with two columns of
+    inputs-outputs with several possible outputs for a given input
+    into a gataframe with one input/ one output by repeating the inputs.
+    I.e., for example dataframe
         ______________________
         'input_1' | ['a','b']
         'input_2' | ['c']
@@ -145,14 +150,14 @@ class PrepareOutput(object):
         'input_1' | 'b'
         'input_2' | 'c'
         __________|______
-        
+
     """
     def from_dataframe(df, msc_bank=MSC.load(5)):
         """
-        Transforms a dataframe with two columns, inputs and outputs, 
-        with several possible outputs for a given input, 
-        into a dataframe with one input/ one output by repeating the inputs. 
-        I.e., for example dataframe 
+        Transforms a dataframe with two columns, inputs and outputs,
+        with several possible outputs for a given input,
+        into a dataframe with one input/ one output by repeating the inputs.
+        I.e., for example dataframe
             ______________________
             'input_1' | ['a','b']
             'input_2' | ['c']
@@ -163,15 +168,15 @@ class PrepareOutput(object):
             'input_1' | 'b'
             'input_2' | 'c'
             __________|______
-        Only uses codes from the msc_bank as potential outputs. 
-        Note: if msc_bank containes codes of length < 5, 
+        Only uses codes from the msc_bank as potential outputs.
+        Note: if msc_bank containes codes of length < 5,
         it will strip the codes of the correct length from the outputs.
-        I.e., output '14B13' will become '14' if msc_bank 
+        I.e., output '14B13' will become '14' if msc_bank
         has codes of length 2.
-        
+
         Input:
           -- df : pd.Dataframe
-          -- msc_bank : MSC object. Defaults to 
+          -- msc_bank : MSC object. Defaults to
           the MSC codes with 5 characters in them.
         Output:
           -- pd.DataFrame, the new dataframe
@@ -185,7 +190,7 @@ class PrepareOutput(object):
             # printing the progress
             if index % 5000 == 0:
                 print(index)
-            
+
             get_prefix = lambda code: code[:code_length]
             prefixes = list(map(get_prefix,row[output_] ))
             valid_codes = [prefix for prefix in prefixes if prefix in msc_bank]

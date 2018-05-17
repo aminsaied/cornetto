@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+"""Uses word-to-vec model to convert an entire abstract into a vector.
+
+Implements a document-level embedding of abstracts using a pretrained
+word-to-vec model.
+"""
 import numpy as np
 import pandas as pd
 

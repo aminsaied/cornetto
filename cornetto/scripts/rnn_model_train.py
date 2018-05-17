@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""Script training RNN on preprocessed arxiv dataset with tensorflow.
+"""
 import numpy as np
 import pandas as pd
 
@@ -8,7 +11,7 @@ from tensorflow.contrib.rnn import DropoutWrapper
 from tensorflow.contrib.layers import l2_regularizer as l2
 from tensorflow.contrib.framework import arg_scope
 
-softmax = tf.nn.sparse_softmax_cross_entropy_with_logits # what is the pythonic way to do this?
+softmax = tf.nn.sparse_softmax_cross_entropy_with_logits
 
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -16,7 +19,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import modules.datasets
 from modules.data_handlers import RNNTrainingData
 
-def default_hyper_params():
+def default_hyperparams():
     """Assigns default hyperparameters."""
     N_NEURONS = 100
     N_HIDDEN = 100
@@ -25,15 +28,14 @@ def default_hyper_params():
     return N_NEURONS, N_HIDDEN, N_STEPS, K_PROB
 
 def default_training_params():
-    """Assigns default training parameters."""
+    """Assign default training parameters."""
     N_EPOCHS = 100
     BATCH_SIZE = 64
     EPSILON = 0.0001
     return N_EPOCHS, BATCH_SIZE, EPSILON
 
 def load_data():
-    """
-    Loads preprocessed arxiv data and RNN training data.
+    """Load preprocessed arxiv data and RNN training data.
     """
     print ("Loading the arxiv.")
     arxiv = datasets.load_arxiv(depth=2)
@@ -49,20 +51,16 @@ def load_data():
     return arxiv, rnn_training_data, n_inputs, n_outputs
 
 def set_use_defaults():
-    """
-    If True will use our default parameters.
-    If False user can input parameters.
-    """
+    """Set verbosity."""
     print ("Use default parameters to build and train the model? (1/0)")
     use_defaults = bool(input())
     return use_defaults
 
-def set_hyper_params(use_defaults):
-    """
-    User selects hyperparameters for the model.
+def set_hyperparams(use_defaults):
+    """User selects hyperparameters for the model.
     """
     if use_defaults:
-        n_neurons, n_hidden, n_steps, k_prob = default_hyper_params()
+        n_neurons, n_hidden, n_steps, k_prob = default_hyperparams()
         return n_neurons, n_hidden, n_steps, k_prob
 
     print ("Select number of neurons in recurrent layer (default " +
@@ -80,8 +78,7 @@ def set_hyper_params(use_defaults):
     return n_neurons, n_hidden, n_steps, k_prob
 
 def set_training_params(use_defaults):
-    """
-    User selects training parameters.
+    """User selects training parameters.
     """
     if use_defaults:
         n_epochs, batch_size, epsilon = default_training_params()
@@ -96,8 +93,7 @@ def set_training_params(use_defaults):
     return n_epochs, batch_size, epsilon
 
 def rnn_minibatches(input_, length_, output_, batch_size):
-    """
-    A generator for rnn_minibatches.
+    """A generator for rnn_minibatches.
     """
     m = len(output_)
 
@@ -119,7 +115,7 @@ if __name__ == '__main__':
 
     use_defaults = set_use_defaults()
 
-    n_neurons, n_hidden, n_steps, k_prob = set_hyper_params(use_defaults)
+    n_neurons, n_hidden, n_steps, k_prob = set_hyperparams(use_defaults)
 
     print ("Building computation graph.")
 
@@ -175,14 +171,23 @@ if __name__ == '__main__':
 
         for epoch in range(n_epochs):
 
-            for X_b, length_b, y_b in rnn_minibatches(train.X, train.length, train.Y, batch_size):
+            for X_b, length_b, y_b in rnn_minibatches(train.X,
+                                                      train.length,
+                                                      train.Y,
+                                                      batch_size):
 
-                sess.run(training_op, feed_dict={X:X_b, seq_length:length_b, y:y_b,
-                                                learning_rate:epsilon})
+                sess.run(training_op, feed_dict={X:X_b,
+                                                 seq_length:length_b,
+                                                 y:y_b,
+                                                 learning_rate:epsilon})
 
             if epoch % 10 == 0:
-                training_acc = accuracy.eval(feed_dict={X:train.X, seq_length:train.length, y:train.Y})
-                test_acc = accuracy.eval(feed_dict={X:test.X, seq_length:test.length, y:test.Y})
+                training_acc = accuracy.eval(feed_dict={X:train.X,
+                                                        seq_length:train.length,
+                                                        y:train.Y})
+                test_acc = accuracy.eval(feed_dict={X:test.X,
+                                                    seq_length:test.length,
+                                                    y:test.Y})
                 see_evaluation(epoch, training_acc, test_acc)
 
         DIR = "/tmp/"

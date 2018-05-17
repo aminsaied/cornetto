@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""Script training a small RNN model for demonstration purposes.
+"""
 import numpy as np
 import pandas as pd
 
@@ -16,24 +19,23 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import modules.datasets
 from modules.containers import MSC
 from modules.data_handlers import RNNTrainingData
-from modules.prediction import Prediction
+from modules.prediction import ThresholdPrediction
 
-# set demonstration parameters
-n_epochs      = 10
-n_inputs      = 70
-n_outputs     = 5
-n_hidden      = 50
-n_neurons     = 100
-n_steps       = 20
-batch_size    = 64
+# set hyperparameters
+n_epochs = 10
+n_inputs = 70
+n_outputs = 5
+n_hidden = 50
+n_neurons = 100
+n_steps = 20
+batch_size = 64
 learning_rate = 0.0003
-k_prob        = 0.5
-reg_param     = 0.3
-selection     = ['05','19','47','57','60']
+k_prob = 0.5
+reg_param = 0.3
+selection = ['05','19','47','57','60']
 
-DIR      = "/tmp/"
+DIR = "/tmp/"
 filename = "demo_model.ckpt"
-
 
 def load_rnn_td_builder(w2v_model):
     """Loads object of class RNNTrainingData to construct model inputs."""
@@ -42,9 +44,7 @@ def load_rnn_td_builder(w2v_model):
     return data
 
 def batches(input_, length_, output_, batch_size):
-    """
-    A generator for rnn minibatches.
-    """
+    """Generator for rnn minibatches."""
     m = len(output_)
 
     for k in range(m // batch_size):
@@ -56,35 +56,36 @@ def batches(input_, length_, output_, batch_size):
         yield X_batch, length_batch, y_batch
 
 def train_model():
-    """
-    The execution phase: uses the training data just curated to train the model.
-    """
     init.run()
     train = rnn_training_data.training
     test  = rnn_training_data.test
 
     for epoch in range(n_epochs):
-        for X_b, length_b, y_b in batches(train.X, train.length, train.Y, batch_size):
-            sess.run(training_op, feed_dict={X:X_b, seq_length:length_b, y:y_b})
+        for X_b, length_b, y_b in batches(train.X,
+                                          train.length,
+                                          train.Y,
+                                          batch_size):
 
-        # if epoch % 10 == 0:
-        training_acc = accuracy.eval(feed_dict={X:train.X, seq_length:train.length, y:train.Y})
-        test_acc     = accuracy.eval(feed_dict={X:test.X , seq_length:test.length , y:test.Y })
+            sess.run(training_op, feed_dict={X:X_b,
+                                             seq_length:length_b, y:y_b})
+
+        training_acc = accuracy.eval(feed_dict={X:train.X,
+                                                seq_length:train.length,
+                                                y:train.Y})
+        test_acc = accuracy.eval(feed_dict={X:test.X ,
+                                            seq_length:test.length,
+                                            y:test.Y })
         _see_evaluation(epoch, training_acc, test_acc)
 
     save_path = saver.save(sess, DIR+filename)
-    return
 
 def _see_evaluation(epoch, training_acc, test_acc):
-    """Prints the training and test accuracies at the given epoch."""
+    """Print training and test accuracies at the given epoch."""
     print (("Epoch {:2}: Training acc: {:.2f}, Test acc: "
             "{:.2f}".format(epoch+1, training_acc*100, test_acc*100) ))
 
 def demo_examples(rnn_td_builder):
-    """
-    Runs through some example abstracts, printing the
-    word-by-word predictions of the model.
-    """
+    """Selects papers at random to see the model in action."""
     examples = datasets.demonstration_examples('rnn')
     for idx, row in examples.iterrows():
         print ("Example", idx+1)
@@ -95,12 +96,11 @@ def demo_examples(rnn_td_builder):
         input()
 
 def _presentation(sentence, msc_bank, rnn_td_builder):
-    """
-    Prints the word-by-word predictions of the trained model on a
-    given abstract.
-    -- sentence: list, of words
-    -- msc_bank: MSC, see 'containers'
-    -- rnn_td_builder: RNNTrainingData, see 'data_handlers'
+    """Print the word-by-word predictions of the trained model on an abstract.
+    Args:
+        -- sentence: list, of words
+        -- msc_bank: MSC, see 'containers'
+        -- rnn_td_builder: RNNTrainingData, see 'data_handlers'
     """
     VIEW_LENGTH = 15
     sentence = sentence[:VIEW_LENGTH]
@@ -121,7 +121,7 @@ def _presentation(sentence, msc_bank, rnn_td_builder):
 
     sentence_history = pd.DataFrame(preds, valid_words, columns=['prediction'])
 
-    print( sentence_history )
+    print(sentence_history)
 
 if __name__ == '__main__':
 

@@ -1,5 +1,10 @@
-import pandas as pd
+#!/usr/bin/env python3
+"""Interfaces with existing datasets stored locally.
 
+Provides access to processed arxiv data, training data of various flavours (see
+`data_handlers` for more details) and some demonstration examples.
+"""
+import pandas as pd
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 
@@ -35,12 +40,12 @@ def read_raw_arxiv_data(path_and_filename):
     print("Reading data...")
     try:
         df = pd.read_pickle(path_and_filename)
-    except FileNotFoundError:        
+    except FileNotFoundError:
         print("File not found.")
         df = pd.DataFrame(columns=[INPUT_, OUTPUT_])
-    
+
     return df[[INPUT_, OUTPUT_]]
-        
+
 def load_arxiv(path_and_filename=None, depth = 5):
     """
     Loads *processed* arxiv of specified depth.

@@ -1,4 +1,10 @@
-# uses Python 3
+#!/usr/bin/env python3
+"""Manages training data for the various available models.
+
+Training, development and test data are used throughout this library in
+various machine learning algorithms: naive Bayes, text-to-vec and RNN models.
+Here we provide classes specifically designed to interface with those models.
+"""
 import pandas as pd
 import numpy as np
 from itertools import combinations
@@ -23,6 +29,7 @@ class PairedData(object):
 
     def __getitem__(self, key):
         return PairedData(self.X[key], self.Y[key])
+
 
 class TrainingData(object):
     """
@@ -65,6 +72,7 @@ class TrainingData(object):
         except FileNotFoundError:
             print("No file %s. Remember, we add the .pkl extension for you!"%filename)
         return cls(*data)
+
 
 class UnigramTrainingData(TrainingData):
     """Creates and handles unigram model training data."""
@@ -128,6 +136,7 @@ class UnigramTrainingData(TrainingData):
         NUMBER_OF_COLS = 2
         assert names.size == NUMBER_OF_COLS
         return names[0], names[1]
+
 
 class T2VTrainingData(TrainingData):
 
@@ -195,6 +204,7 @@ class RNNData(object):
         self.Y = Y
         self.dimY = dimY
 
+
 class RNNTrainingData(TrainingData):
     """
     Creates and handles training data for our recurrent neural networks.
@@ -208,16 +218,16 @@ class RNNTrainingData(TrainingData):
         -- arxiv: dataframe, prepared arxiv dataframe, see 'datasets'
         """
         # TODO: make sure that both primary and non=primary work fine
-        
+
         arxiv_codes, arxiv_sentences = cls._make_input_output(arxiv, msc_bank)
 
         input_  = cls.build_input(arxiv_sentences, w2v_model, n_steps)
         length_ = cls._build_length(arxiv_sentences)
         output_ = cls.build_output(arxiv_codes, msc_bank)
-        
+
         dim_output = len(msc_bank)
         return cls(*cls._make_cut(input_, length_, output_, dim_output))
-    
+
     @classmethod
     def _make_input_output(cls, arxiv, msc_bank, primary=True):
         """
@@ -254,7 +264,7 @@ class RNNTrainingData(TrainingData):
         convert_to_int = lambda index: [int(id_) for id_ in index]
         y = one_hot_codes.apply(convert_to_int)
         return np.array(y.tolist())
-    
+
     @classmethod
     def build_input(cls, arxiv_sentences, w2v_model, n_steps):
         """
@@ -266,7 +276,7 @@ class RNNTrainingData(TrainingData):
         f = partial(cls.build_rnn_input, w2v_model=w2v_model, n_steps=n_steps )
         input_series = arxiv_sentences.apply(f)
         return np.array(input_series.tolist())
-    
+
     @staticmethod
     def build_output(arxiv_primary, msc_bank):
         """
@@ -281,7 +291,7 @@ class RNNTrainingData(TrainingData):
     @staticmethod
     def _build_length(arxiv_sentences):
         return np.array(arxiv_sentences.apply(len).tolist())
-    
+
     @staticmethod
     def build_rnn_input(sentence, w2v_model, n_steps):
         """
@@ -294,7 +304,7 @@ class RNNTrainingData(TrainingData):
         input_ = np.zeros((n_steps, w2v_model.dim))
         input_[:vecs.shape[0]] = vecs
         return input_
-    
+
     @staticmethod
     def _make_cut(input_, length_, output_, dim_output, test_cut_off=1000):
         """

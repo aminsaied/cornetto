@@ -1,13 +1,13 @@
-# uses Python 3
+#!/usr/bin/env python3
+"""Used to process abstracts of papers.
 
-# import standard libraries
+Analyize parts of speach, remove math formulae, generally cleans text.
+"""
+import re
+from collections import Counter, namedtuple, UserDict
 import numpy as np
 import pandas as pd
-import re
-
-#import methods from libraries
 from nltk.tag import pos_tag
-from collections import Counter, namedtuple, UserDict
 
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
@@ -16,7 +16,7 @@ from arxiv_processor import PrepareInput
 
 class TextCleaner(object):
     """
-    This is a collection of static methods designed to select 
+    This is a collection of static methods designed to select
     'appropriate' words from a text.
     """
     @staticmethod
@@ -35,8 +35,8 @@ class TextCleaner(object):
     @staticmethod
     def strip_non_alphas(text):
         """
-        Removes non-letter symbols, replacing them with spaces. 
-        Note: also removes tabs and new line symbols. 
+        Removes non-letter symbols, replacing them with spaces.
+        Note: also removes tabs and new line symbols.
         Input:
           -- text : string
         Output:
@@ -65,7 +65,7 @@ class TextCleaner(object):
     @classmethod
     def clean(cls, text):
         """
-        Removes math and non-alpha characters 
+        Removes math and non-alpha characters
         (including tabs and new line symbols) from the text.
         Input:
           -- text : string
@@ -83,19 +83,19 @@ class POSTagger(object):
     @classmethod
     def tag_text(cls, text):
         """
-        Given text, removes all math and non-alpha symbols, 
+        Given text, removes all math and non-alpha symbols,
         splits it into words and tags them with POS tag.
         Input:
           -- text, string
         Output:
-          List[tup] : list of pairs (word , tag), both being strings, 
-            for every word from the text 
+          List[tup] : list of pairs (word , tag), both being strings,
+            for every word from the text
             (after it was cleaned by the TextCleaner).
         """
         word_list = TextCleaner.get_clean_words(text)
         tagged_words = cls.tag_words(word_list)
         return tagged_words
-        
+
     @staticmethod
     def tag_words(words):
         """
@@ -119,10 +119,10 @@ class WordSelector(object):
     def select_N_words(self, text, N_words=25):
         """
         Randomly selects and returns a given number of words from the text.
-        Only takes words that are in self.vocab. 
+        Only takes words that are in self.vocab.
         Note: selection is WITH replacement.
         Input:
-          -- text : str 
+          -- text : str
           -- N_words : int, the number of words to select from text
         Output:
           List[str] : list of selected words (strings)
@@ -136,8 +136,8 @@ class WordSelector(object):
 
     def select_words(self, text):
         """
-        Select words from text that appear in self.vocab. 
-        Note: it also checks phrases: words "w1_w2" where w1 and w2 are 
+        Select words from text that appear in self.vocab.
+        Note: it also checks phrases: words "w1_w2" where w1 and w2 are
         in self.vocab.
         Input:
           -- text : string
@@ -147,16 +147,16 @@ class WordSelector(object):
         sentence = text.split()
         selected_words =  self.select_from_sentence(sentence)
         return selected_words
-    
+
     def select_from_sentence(self, sentence):
         """
-        Given a sentence, pick words and phrases (pairs of words) 
+        Given a sentence, pick words and phrases (pairs of words)
         that appear in the vocabulary self.vocab.
         Input:
           -- List[str] : list of words
         Ouput:
-          -- List[str] : list of words from self.vocab, now also 
-          includes phrases -- strings of the form "w1_w2" 
+          -- List[str] : list of words from self.vocab, now also
+          includes phrases -- strings of the form "w1_w2"
           where w1 and w2 are in self.vocab.
         """
         selected_words = PrepareInput.from_sentence(sentence, self.vocab)

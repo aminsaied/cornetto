@@ -1,12 +1,19 @@
-# uses Python 3
+#!/usr/bin/env python3
+"""Provides consistent API for vocab, msc_classes, phrases and tfidf objects.
 
-# import standard libraries
-import sys
+Parent class `_SortedContainer` provides consistent API for standard methods
+on containers of various data types used frequently thoughout the Cornetto
+library.
+
+Example:
+    from containers import MSC, Vocab
+
+    msc_bank = MSC.load(2)              # MSC classes of length 2
+    vocab = Vocab.load([...])           # provide filename for prepared vocab
+"""
 import numpy as np
 import pandas as pd
 from scipy import sparse
-
-#import methods from libraries
 from collections import namedtuple
 from copy import deepcopy
 
@@ -14,48 +21,45 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 
 thismodule = sys.modules[__name__]
-
-import data
-# MSC_DATA_PATH = 'data/msc_classes/'
-MSC_DATA_PATH = os.path.dirname(data.__file__)
-MSC_FILENAME_TEMPLATE = MSC_DATA_PATH+'/msc_classes/' + '%s_digit'
+MSC_DATA_PATH = '../data'
+MSC_FILENAME_TEMPLATE = MSC_DATA_PATH + '/msc_classes/' + '%s_digit'
 
 class _SortedContainer(object):
     """
-    Abstract container class to be used as a dictionary. 
-    One of the main features: allows fast access to the elements (keys) 
-    by id (index) and also fast access to the information 
-    (usually named tuple) about a given key. 
-    
-    Class methods: 
-      -- feature_cls_name(cls): *abstract property*, name of 
+    Abstract container class to be used as a dictionary.
+    One of the main features: allows fast access to the elements (keys)
+    by id (index) and also fast access to the information
+    (usually named tuple) about a given key.
+
+    Class methods:
+      -- feature_cls_name(cls): *abstract property*, name of
       the class used to encode the features.
-      -- load(cls, file, dtype=None): returns a new instance 
+      -- load(cls, file, dtype=None): returns a new instance
       loaded from a file (can be a file or just a filename with a path).
 
-    
+
     Object of this class has two fields:
-      -- sorted_keys : List, list of keys. NOTE: "Sorted" simply refers to 
+      -- sorted_keys : List, list of keys. NOTE: "Sorted" simply refers to
       the fact this is a list, so there is an order on the elements.
-      -- features: this is dictionary {key:value}, 
-      key is an element of the self.sorted_keys, value is a named tuple. 
-      WARNING: named tuple is assumed to have two fields: 'key' and 'id' 
+      -- features: this is dictionary {key:value},
+      key is an element of the self.sorted_keys, value is a named tuple.
+      WARNING: named tuple is assumed to have two fields: 'key' and 'id'
       with 'key' matching the key and 'id' a unique int.
-      
-    Object of this class behaves like a "two-sided" dictionary, 
+
+    Object of this class behaves like a "two-sided" dictionary,
     has indexing, len, etc. Moreover, it has:
-      -- save(filename): saves the object into a file. 
-      NOTE: filename has no extension, 
+      -- save(filename): saves the object into a file.
+      NOTE: filename has no extension,
       i.e. 'my_container', NOT 'my_container.txt'
-      -- one_hot(keys,as_sparse=False): given a key or a list of keys, 
-      return a numpy array (column) if dimension=len(self) with '1' 
+      -- one_hot(keys,as_sparse=False): given a key or a list of keys,
+      return a numpy array (column) if dimension=len(self) with '1'
       at the positions corresponding to the keys.
-      -- sorted_by(self, attribute="id", reverse=True): returns 
+      -- sorted_by(self, attribute="id", reverse=True): returns
       a new instance with the same keys but sorted w.r.t. a given attribute
-      of the features. 
-      -- remove_keys(self, keys_to_remove): return a new instance, 
+      of the features.
+      -- remove_keys(self, keys_to_remove): return a new instance,
       all keys from the list keys_to_remove will be omitted.
-      -- keep_keys(self, keys_to_keep): return a new instance, 
+      -- keep_keys(self, keys_to_keep): return a new instance,
       only has keys from the list keys_to_keep.
     """
     @property
@@ -77,10 +81,8 @@ class _SortedContainer(object):
 
     def _set_feature_id(self, feature, id):
         return feature._replace(id=id)
-        
+
     def __setitem__(self, key, item):
-        # assert item isinstance(_Feature)
-        # TODO: make a general class called _Feature
         self._features[key] = item
 
     def __getitem__(self, key):
@@ -161,16 +163,16 @@ class _SortedContainer(object):
     def save(self, filename):
         """
         Input:
-          -- filename: str, *no extension*, 
+          -- filename: str, *no extension*,
           i.e. 'my_file' isnstead of 'my_file.txt'
         """
         EXTENSION = '.csv'
         features_as_tups = list(map(tuple, self._features.values()))
         features_as_df = pd.DataFrame(features_as_tups)
-        features_as_df.to_csv(filename+EXTENSION, mode = 'w', index=False)
-        
+        features_as_df.to_csv(filename+EXTENSION, mode='w', index=False)
+
     @classmethod
-    def load(cls, file, dtype=None, encoding = 'ISO-8859-1'):
+    def load(cls, file, dtype=None, encoding='ISO-8859-1'):
         """
            -- file : either a filename or a file object.
            -- dtype : dictionary of types for each feature attribute
@@ -179,15 +181,14 @@ class _SortedContainer(object):
         if isinstance(file, str):
             EXTENSION = '.csv'
             file += EXTENSION
+
         try:
             features_as_df = pd.read_csv(file, dtype=dtype, encoding=encoding)
         except (ValueError, EOFError):
             print("Can't read the file.")
             empty = cls()
             return empty
-        
-        # WARNING: this assumes that the class describing the features is 
-        # defined withing this module
+
         feature_cls = getattr(thismodule, cls.feature_cls_name)
         features_list = [feature_cls(*x) for x in features_as_df.values]
         sorted_keys, features = cls._from_tups(features_list)
@@ -201,11 +202,9 @@ class _SortedContainer(object):
         features = dict(zip(sorted_keys,sorted_features))
 
         return sorted_keys, features
-            
+
     def one_hot(self, key, as_sparse=False):
-        """
-        Returns numpy *column* with 1 at the index corresponding to the key.
-        
+        """Return numpy *column* with 1 at the index corresponding to the key.
         """
         vec = np.zeros( (len(self),1) )
         if isinstance(key, list):
@@ -235,7 +234,7 @@ class _SortedContainer(object):
 
     def remove_keys(self, keys_to_remove):
         """
-        Return a new container object, 
+        Return a new container object,
         with all the keys from keys_to_remove omitted.
         Input:
           -- keys_to_remove : List, list of keys to omit
@@ -264,8 +263,8 @@ class WordFeatures(namedtuple('WordFeatures', ['key', 'id','tag','freq'])):
       -- key : str, the word itself
       -- id : int
       -- tag: str, POS tag
-      -- freq: how frequent is the word in the training set. Used mostly 
-      for comparison (e.g. more frequent vs. less frequent), not in the 
+      -- freq: how frequent is the word in the training set. Used mostly
+      for comparison (e.g. more frequent vs. less frequent), not in the
       absolute sense (where it has no meaning, really).
     """
     __slots__ = () # to save memory
@@ -276,19 +275,19 @@ class VocabParams(object):
     """
     Class to keep all the params for creating a vocabulary.
     Class variables:
-      -- POS : List[str], list of parts of speech used. 
-      Default is ['NNP','NN','NNS','JJ'], for proper nouns, nouns, 
+      -- POS : List[str], list of parts of speech used.
+      Default is ['NNP','NN','NNS','JJ'], for proper nouns, nouns,
       nouns plural and adjectives.
       -- PROPER_NOUN : str = 'NNP', constant used to indicate proper nouns,
       which stand out for our problem
       -- MIN_WORD_LEN : int, min # of chars in a word to be kept in the vocab
       -- MIN_PROP_NOUN_LEN: int, min # of chars in a proper noun in the vocab
-      -- MIN_FREQ : int, min # of times the word should appear in 
-      the text corpus the vocab is created from to be kept in the vocab 
+      -- MIN_FREQ : int, min # of times the word should appear in
+      the text corpus the vocab is created from to be kept in the vocab
       (i.e. words appering less than MIN_FREQ times will be dropped)
-      -- Values : namedtuple, has fields 
-      'min_word_len', 'min_prop_noun_len','min_freq'. It is used to be able to 
-      change the default values when passing the parameters into 
+      -- Values : namedtuple, has fields
+      'min_word_len', 'min_prop_noun_len','min_freq'. It is used to be able to
+      change the default values when passing the parameters into
       methosd with construct the vocabulary.
     """
     POS = ['NNP','NN','NNS','JJ']
@@ -358,10 +357,10 @@ class PhraseFeatures(namedtuple('PhraseFeatures', ['key', 'id','tag','mutual_inf
       -- key : (str,str), the phrase itself
       -- id : int
       -- tag: (str,str), a pair of strings (POS tags) from VocabParams.POS
-      -- mutual_info: float, the value of the 
-      mutual information statistic between the two words in the phrase. 
-      Computed in the process of creation from training data (text corpus).  
-      -- freq: how frequent is the phrase in the training set. Used mostly 
+      -- mutual_info: float, the value of the
+      mutual information statistic between the two words in the phrase.
+      Computed in the process of creation from training data (text corpus).
+      -- freq: how frequent is the phrase in the training set. Used mostly
       for comparison (e.g. more frequent vs. less frequent).
     """
     __slots__ = ()
@@ -385,7 +384,7 @@ class Phrases(_SortedContainer):
     def to_vocab(self):
         """
         Returns a new Vocab object, with the keys and features obtained
-        from the features of self. Each phrase '(word1,word2)' gets 
+        from the features of self. Each phrase '(word1,word2)' gets
         converted to the word 'word1_word2'.
         """
         cls = self.__class__
@@ -450,12 +449,11 @@ class MSC(_SortedContainer):
     def load(cls, filename):
         """
         Input:
-          -- filename: str or int. If int, it should be 
-          an element of cls.POSSIBLE_CODE_LENGTHS. Then it loads a 
-          default MSC container with codes of the prescribed length.
+            -- filename: str or int. If int, it should be an element of
+                cls.POSSIBLE_CODE_LENGTHS. Then it loads a default MSC
+                container with codes of the prescribed length.
         """
-        # if the filename is just an int indicating the code depth
-        if isinstance(filename,int):
+        if isinstance(filename, int):
             code_length = filename
             assert code_length in MSC.POSSIBLE_CODE_LENGTHS
             filename = cls._get_filename(code_length)
@@ -472,13 +470,13 @@ class TFIDFFeatures(namedtuple('TFIDFFeatures', ['key', 'id','tag','idf','tfidf'
     Child of collections.namedtuple. Has fields:
       -- key : str, a word
       -- id : int
-      -- tag: str or a tuple (str,str), POS tag. If the word is of the form 
-      "word1_word2", i.e. obtained from a phrase, the POS is a pair of POS 
+      -- tag: str or a tuple (str,str), POS tag. If the word is of the form
+      "word1_word2", i.e. obtained from a phrase, the POS is a pair of POS
       tags, one for each of the words.
-      -- idf: the IDF score, computed from a training data. 
-      Used only for comparing words with each other (for example 
+      -- idf: the IDF score, computed from a training data.
+      Used only for comparing words with each other (for example
       at the stage of feature selection).
-      -- tfidf: the TFIDF score, computed from a training data. 
+      -- tfidf: the TFIDF score, computed from a training data.
       Used for comparing words with each other.
     """
     __slots__ = ()
@@ -494,14 +492,13 @@ class TFIDF(_SortedContainer):
       -- feature_cls_name = "TFIDFFeatures", name of the class
       controling the TFIDF features.
     Instance methods:
-      -- get_N_lowest_no_NNP(self, N, attr='tfidf') : 
-      returns a list of N non-proper-nouns with the lowest value of 
+      -- get_N_lowest_no_NNP(self, N, attr='tfidf') :
+      returns a list of N non-proper-nouns with the lowest value of
       the attribute. By default, it's 'tfidf'.
-      -- get_N_lowest_NNP, get_N_lowest, get_N_highest: similar 
+      -- get_N_lowest_NNP, get_N_lowest, get_N_highest: similar
       to get_N_lowest_no_NNP and have the same signature.
       -- proper_nouns(self) : returns a list of all contained proper nouns
     """
-    
     feature_cls_name = "TFIDFFeatures"
 
     def __init__(self, *args, **kwargs):
@@ -509,7 +506,7 @@ class TFIDF(_SortedContainer):
 
     def get_N_lowest_no_NNP(self, N, attr='tfidf'):
         """
-        Returns a list of N non-proper-nouns with the lowest value of 
+        Returns a list of N non-proper-nouns with the lowest value of
         the attribute. By default, it's 'tfidf'.
         Input:
           -- N : int, number of words to select

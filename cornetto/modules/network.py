@@ -1,5 +1,5 @@
-# uses Python 3.6
-
+#!/usr/bin/env python3
+"""Implements vanilla neural network."""
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -220,8 +220,6 @@ class Network(object):
         output = self.output_with_activation(data.X)
         prediction = Prediction(output)
         P = prediction.most_likely(N_GUESSES)
-        # P = np.zeros_like(output)
-        # P[np.argmax(output, axis=0),range(output.shape[1])] = 1
         Y = data.Y
         return np.mean(np.sum(np.multiply(P, Y), axis=0))
 
@@ -267,8 +265,9 @@ class Network(object):
         for layer in reversed(self.layers[1:]):
             delta = updates.last_delta()
             activation_function = layer.activation_function
-            updates.compute_next(activation_function, energies, layer.pullback_with_weight(delta))
-
+            updates.compute_next(activation_function,
+                                 energies,
+                                 layer.pullback_with_weight(delta))
         return updates
 
     def _update_parameters(self, updates, params):
@@ -280,7 +279,6 @@ class Network(object):
             layer._weights = reg_factor * layer._weights - learning_rate*updates.weights_updates[-index-1]
             layer._biases = layer._biases - learning_rate*updates.biases_updates[-index-1].reshape((layer.dim_out,1))
 
-    ## TODO rename this!
     @staticmethod
     def weird_matrix_operation(M,N):
         m = M.shape[1]
@@ -317,8 +315,13 @@ class TrainingParams(object):
         self.n_iterations=n_iterations
 
     def __str__(self):
-        return "Learning rate  : %s\nCost Function  : %s\nMini-batch size: %s\nReg param      : %s\n"\
-                %(self.learning_rate, self.cost_function.name, self.mini_batch_size, self.reg_parameter)
+        return """Learning rate  : %s
+                  Cost Function  : %s
+                  Mini-batch size: %s
+                  Reg param      : %s\n""".format(self.learning_rate,
+                                                  self.cost_function.name,
+                                                  self.mini_batch_size,
+                                                  self.reg_parameter)
 
 class Energies(object):
     """

@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+"""Optimize prediction of MSC class based on model output.
+
+Our models output probability vectors [p0,, ..., pN] where the i-th entry pi
+represents the probability that the given paper of of class-i. Given such a
+vector we use various metrics to select which and, crucially, how many classes
+to output.
+
+The F1 score is such a metric, so one approach is to set thresholds maximizing
+that score.
+"""
 import numpy as np
 import pandas as pd
 from functools import partial
@@ -21,15 +32,14 @@ class ThresholdPrediction(object):
     certain threshold value. The threshold parameters are selected to optimise
     average F1-score.
     """
-
     def __init__(self, dim=0, threshold=None, labels=None):
         """
         Note that before the model is fit to data, the initial threshold
         vector is full of ones. In this way, before the ThresholdPrediction
         object is fit to data, the 'predict' method simply selects the
         single class with the higghest probability.
-        -- K: either the number of classes (=dim of the vector), 
-        or a 'collection' of classes, i.e. anything we can take 'len' of. 
+        -- K: either the number of classes (=dim of the vector),
+        or a 'collection' of classes, i.e. anything we can take 'len' of.
         """
         assert isinstance(dim, int)
         self.dim = dim
@@ -39,7 +49,7 @@ class ThresholdPrediction(object):
     @property
     def threshold(self):
         return self._threshold
-    
+
     @threshold.setter
     def threshold(self, value):
         if value is None:
@@ -47,11 +57,11 @@ class ThresholdPrediction(object):
         value_as_arr = np.array(value).reshape(-1,1)
         assert value_as_arr.shape[0] == self.dim
         self._threshold = value_as_arr
-        
+
     @property
     def labels(self):
         return self._labels
-    
+
     @labels.setter
     def labels(self, value):
         if value is None:
@@ -59,11 +69,11 @@ class ThresholdPrediction(object):
         value_as_arr = np.array(value).reshape(-1,1)
         assert value_as_arr.shape[0] == self.dim
         self._labels = value_as_arr
-        
+
     def fit(self, p_hat, y, refinement=50, beta=1.0, verbose=False):
         """
-        Given a 2D array p_hat, each column a probability vector, 
-        and a matrix of labels y, fits the threshold parameter 
+        Given a 2D array p_hat, each column a probability vector,
+        and a matrix of labels y, fits the threshold parameter
         vector to maximise the F-beta score.
         Input:
           -- p_hat: 2D array, cols = probability vectors
@@ -97,18 +107,18 @@ class ThresholdPrediction(object):
         """
         y_hat = self._predict_with_threshold(p_hat, self.threshold)
         return y_hat
-    
+
     def save(self, filename):
         """
         Input:
-          -- filename: str, filename with a path, *no extension*, 
+          -- filename: str, filename with a path, *no extension*,
           i.e. 'my_file' isnstead of 'my_file.txt'
         """
         EXTENSION = '.csv'
         data = np.hstack( (self.threshold, self.labels) )
         pred_as_df = pd.DataFrame(data)
         pred_as_df.to_csv(filename+EXTENSION, mode = 'w', index=False)
-        
+
     @classmethod
     def load(cls, file, encoding = 'ISO-8859-1'):
         """
@@ -129,14 +139,14 @@ class ThresholdPrediction(object):
             return empty
         dim = len(df.index)
         return cls(dim, df['0'], df['1'])
-    
+
     def _predict_with_threshold(self, p_hat, T):
         p_hat = p_hat.reshape(self.dim, -1)
         T = T.reshape(self.dim, -1)
         y_hat = (p_hat > T).astype(int)
         y_hat_no_gaps = self._fill_gaps(p_hat, y_hat)
         return y_hat_no_gaps
-        
+
     @staticmethod
     def _fill_gaps(p_hat, y_hat):
         """
@@ -152,7 +162,6 @@ class ThresholdPrediction(object):
 
         y_hat[code_indices, gap_indices] += 1
         return y_hat
-
 
 class ThresholdPredictionSimple(object):
     """

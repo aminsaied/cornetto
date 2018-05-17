@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+"""Conducts statistical analysis of our text data.
+
+Various concepts from information theory are implemented:
+    - entropy
+    - mutual information
+    - information gained
+"""
 import numpy as np
 
 import sys, os
@@ -6,9 +14,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 from containers import Vocab
 from text_processor import WordSelector
 
-    
 class IG(object):
-
+    """Information gained."""
     def __init__(self, vocab, docs, labels):
         self.label_dict = self._get_label_dict(labels)
         docs_as_words = IG._docs_to_words(vocab, docs)

@@ -1,14 +1,15 @@
-"""
-This script is desined to do two things. First, it 
-processes the arxiv datafraem collected by 'harvest_arxiv.py'.
-Namely, it
-  * removes punctuation and math equations from abstracts
-  * keeps only nouns, proper nouns and adjectives
-  * learns phrases (2-grams) and joins the words in them by '_' 
-  * only keeps valid MSC labels, and abstracts with enough words in them
-Moreover, while processing the dataframe it learns a vocabulary:
-collection of words and phrases (object of Vocab class) to be 
-used in all the other parts of the project. 
+#!/usr/bin/env python3
+"""Script processing arxiv data by cleaning text and building a vocabulary.
+
+This script is desined to do two things. First, it processes the arxiv
+dataframe collected by 'harvest_arxiv.py'. Namely:
+
+  - removes punctuation and math equations from abstracts
+  - keeps only nouns, proper nouns and adjectives
+  - learns phrases (2-grams) and joins the words in them by '_'
+  - only keeps valid MSC labels, and abstracts with enough words in them
+
+Moreover, while processing the dataframe it learns a vocabulary.
 """
 import numpy as np
 import pandas as pd
@@ -35,7 +36,7 @@ PROCESSED_PREFIX = '-processed_'
 PHRASE_PERCENT = 0.7
 MIN_ABSTR = 10
 DEPTH = 5
-    
+
 class DataFrameSelector(BaseEstimator, TransformerMixin):
     """Returns series from pandas dataframe."""
     def __init__(self, column):
@@ -46,11 +47,7 @@ class DataFrameSelector(BaseEstimator, TransformerMixin):
         return X[self.column]
 
 class AbstractCleaner(BaseEstimator, TransformerMixin):
-    """
-    Given a pandas series of abstracts, returns a list of strings which
-    have been cleaned of math expressions.
-    """
-
+    """Cleans abstracts of unwanted math expressions."""
     def __init__(self, math_replacement=''):
         self.math_replacement = math_replacement
 
@@ -62,7 +59,7 @@ class AbstractCleaner(BaseEstimator, TransformerMixin):
         return X.apply(f)
 
 class VocabSelector(BaseEstimator, TransformerMixin):
-
+    """Builds vocab from abstracts."""
     def __init__(self):
         pass
 
@@ -73,7 +70,7 @@ class VocabSelector(BaseEstimator, TransformerMixin):
         temp_vocab = VocabSelector._build_vocab(X)
         phrases = VocabSelector._build_phrases(X, temp_vocab)
         phrases_vocab = phrases.to_vocab()
-        
+
         vocab = temp_vocab + phrases_vocab
 
         return vocab
@@ -94,7 +91,7 @@ class VocabSelector(BaseEstimator, TransformerMixin):
         return phrases
 
 if __name__ == "__main__":
-    
+
     filename = search_files(ARXIV_DATA_DIR)
     if not filename:
         sys.exit()
@@ -115,30 +112,25 @@ if __name__ == "__main__":
 
     sentences_series = cleaner_pipeline.fit_transform(arxiv)
 
-    # split pipeline
     vocab_pipeline = Pipeline([
             ('vocab_builder', VocabSelector() ),
     ])
 
     vocab = vocab_pipeline.fit_transform(sentences_series)
-    # need to use '-4' to remove the extension...
-    # TODO: re-write it pretty
     vocab.save(VOCAB_DIR+VOCAB_PREFIX+filename[-4:])
 
-    # update the input of the df by picking the words from vocab and
-    # creating phrases by joining words with '_'
-    # TODO rename this class to be more desciptive
+    # create phrases (aka bigrams) in the abstract data
     phrases_series = PrepareInput.from_series(sentences_series, vocab)
 
     arxiv_processed = pd.concat([phrases_series, msc_series], axis=1)
-    
+
     # drop rows with no valid labels (MSC codes)
     no_valid_label = arxiv_processed.loc[msc_series.apply(len)==0].index
     arxiv_processed = arxiv_processed.drop(no_valid_label)
-    
+
     # drop rows with < MIN_ABSTR words in the abstract
     too_short = arxiv_processed.loc[phrases_series.apply(len)<MIN_ABSTR].index
     arxiv_processed = arxiv_processed.drop(too_short)
-    
+
     proc_path = ARXIV_PROC_DIR + PROCESSED_PREFIX + filename
     pd.to_pickle(arxiv_processed, proc_path)

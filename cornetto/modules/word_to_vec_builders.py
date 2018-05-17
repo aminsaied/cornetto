@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+"""Builds word-to-vec models used throughout this library.
+
+The word-to-vec model provides meaningful word-embeddings that facilitate the
+majority of the NLP and machine learning algorithms used in this library.
+"""
 import numpy as np
 import pandas as pd
 
@@ -16,9 +22,7 @@ class WordToVecModel(object):
     """
     Handles the word2vec dictionary.
     """
-    
     PATH = os.path.dirname(data.__file__)+'/models/w2v/'
-    
     def __init__(self, w2v_dict=dict(), dim=100):
         self._w2v_dict = w2v_dict
         self.dim = dim
@@ -45,23 +49,21 @@ class WordToVecModel(object):
 
 class GensimWordToVec(WordToVecModel):
     """Simple wrapper for the Gensim WordToVec model."""
-        
     def fit(self, sentences, vocab, window=20):
         # TODO: don't we assume sentences are already built out of words from vocab?
         # so maybe we can omit vocab as input
-        
+
         # works for either pd.Series or just a list
         sentences = list(sentences)
         model = word2vec.Word2Vec(sentences, size=self.dim, window=window)
         words = [word for word in vocab if word in model]
         vectors = [model[word] for word in words]
         self._w2v_dict = dict(zip(words, vectors))
-        
+
 class SVDWordToVec(WordToVecModel):
     """
     Uses SVD to produce word embeddings.
     """
-
     def __init__(self, dim, vocab):
         """
         -- dim: int, the desired dimension of word embeddings

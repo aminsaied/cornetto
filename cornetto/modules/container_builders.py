@@ -1,11 +1,19 @@
-# import standard libraries
+#!/usr/bin/env python3
+"""Build vocab and TFIDF containers used throughout the library.
+
+We process arxiv abstracts into an array of words. The set of all words is
+handled by the vocab container class (see `containers` for more details).
+The :class:`VocabBuilder` can construct such a container from arxiv data in
+various forms. The TFIDF is a measure of word importance across a corpus of
+text. We can use this for feature reduction.
+"""
 import numpy as np
 import pandas as pd
 
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 
-#import methods from libraries
+# import methods from libraries
 from collections import Counter, namedtuple
 from text_processor import WordSelector, TextCleaner, POSTagger
 from containers import WordFeatures, Vocab, Phrases, PhraseFeatures, VocabParams, TFIDF, TFIDFFeatures
@@ -15,7 +23,7 @@ class VocabBuilder(object):
     def __init__(self, params=VocabParams.Values()):
         self.params = params
 
-    def from_series(self,series):
+    def from_series(self, series):
         """
          -- series : pandas series, collection of text to build vocab only
         """
@@ -202,15 +210,6 @@ class PhraseBuilder(object):
         off_on = np.outer(off, on)
         off_off = np.outer(off, off)
         return np.array( [off_off, off_on, on_off, on_on] )
-
-
-
-
-
-
-
-
-
 
 class TFIDFBuilder(object):
     """
