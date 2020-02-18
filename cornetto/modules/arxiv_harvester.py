@@ -62,8 +62,11 @@ class ArxivHarvester(object):
 
             soup = bs(r.text,'lxml')
             for entry in soup.find_all('record'):
-                metadata = self.__class__._get_metadata(entry)
-                df.loc[df.shape[0]] = metadata
+                try:
+                    metadata = self.__class__._get_metadata(entry)
+                    df.loc[df.shape[0]] = metadata
+                except AttributeError as e:
+                    continue
 
             # pickle the data-frame with these 1000 papers
             df.to_pickle(self.arxiv_data_path+self.name_template%file_counter)
@@ -103,6 +106,7 @@ class ArxivHarvester(object):
 
     @staticmethod
     def _get_metadata(soup_entry):
+
         xstr = lambda s: '' if s is None else str(s)
 
         arXiv_id = xstr(soup_entry.id.string)
