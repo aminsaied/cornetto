@@ -18,11 +18,12 @@ from collections import namedtuple
 from copy import deepcopy
 
 import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 thismodule = sys.modules[__name__]
-MSC_DATA_PATH = '../data'
-MSC_FILENAME_TEMPLATE = MSC_DATA_PATH + '/msc_classes/' + '%s_digit'
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+MSC_DATA_PATH = os.path.join(parent_dir, 'data', 'msc_classes')
+MSC_FILENAME_TEMPLATE = '%s_digit'
 
 class _SortedContainer(object):
     """
@@ -463,7 +464,9 @@ class MSC(_SortedContainer):
 
     @staticmethod
     def _get_filename(code_length):
-        return MSC_FILENAME_TEMPLATE%code_length
+        filename = MSC_FILENAME_TEMPLATE%code_length
+        filepath = os.path.join(MSC_DATA_PATH, filename)
+        return filepath
 
 class TFIDFFeatures(namedtuple('TFIDFFeatures', ['key', 'id','tag','idf','tfidf'])):
     """
